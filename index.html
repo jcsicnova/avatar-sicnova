@@ -3,133 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sicnova 3D - IES Santo Reino</title>
+    <title>Sicnova - IES Santo Reino</title>
     <style>
         :root {
-            --bg-color: #000000;
-            --card-bg: #121212;
+            --bg: #000000;
             --primary: #007bff;
             --text: #ffffff;
-            --gray: #888888;
         }
 
         body, html {
-            margin: 0; padding: 0;
-            width: 100%; height: 100%;
-            background-color: var(--bg-color);
-            color: var(--text);
-            font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
+            margin: 0; padding: 0; height: 100%;
+            background-color: var(--bg); color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
         }
 
-        /* Contenedor Principal */
-        .app-wrapper {
+        .container {
             display: flex; flex-direction: column;
-            width: 100%; height: 100%;
+            height: 100%; width: 100%;
             align-items: center; justify-content: center;
+            text-align: center;
         }
 
         header {
-            width: 100%; padding: 20px; text-align: center;
-            border-bottom: 1px solid #222; position: absolute; top: 0;
+            position: absolute; top: 0; width: 100%;
+            padding: 20px; background: rgba(0,0,0,0.8);
+            border-bottom: 1px solid #222; z-index: 10;
         }
 
-        .screen {
-            display: none; width: 90%; max-width: 450px;
-            text-align: center; animation: fadeIn 0.5s ease;
-        }
-
+        .screen { display: none; width: 90%; max-width: 500px; }
         .active { display: block; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        h1 { font-size: 1.6rem; margin-bottom: 5px; }
-        .subtitle { color: var(--gray); margin-bottom: 30px; font-size: 0.9rem; }
-
-        /* Botones Estilo Sicnova */
         .btn {
-            display: block; width: 100%; padding: 18px; margin: 15px 0;
-            border: none; border-radius: 12px; font-size: 1rem;
+            display: block; width: 100%; padding: 20px; margin: 15px 0;
+            border: none; border-radius: 15px; font-size: 1.1rem;
             font-weight: bold; cursor: pointer; transition: 0.3s;
-            text-transform: uppercase; letter-spacing: 1px;
         }
 
-        .btn-adult { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); }
+        .btn-adult { background: var(--primary); color: white; }
         .btn-minor { background: #222; color: #fff; border: 1px solid #444; }
-        .btn-back { background: none; color: var(--gray); text-decoration: underline; margin-top: 20px; }
 
-        /* Frame del Avatar y Video */
-        iframe, video {
-            width: 100%; height: 75vh; border: none;
-            border-radius: 15px; background: #000; margin-top: 60px;
+        /* Contenedor del Generador */
+        #avatar-container {
+            width: 100%; height: 100vh;
+            display: none; position: relative;
         }
 
-        #loading-msg { margin-top: 100px; color: var(--primary); }
+        iframe {
+            width: 100%; height: 100%; border: none;
+            background: #000;
+        }
+
+        video { width: 100%; border-radius: 15px; background: #000; }
+
+        .back-btn {
+            position: absolute; bottom: 20px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.2);
+            color: white; padding: 10px 20px; border-radius: 20px;
+            text-decoration: none; font-size: 0.8rem; z-index: 20;
+            border: none; cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <b style="color:var(--primary)">SICNOVA</b> | IES SANTO REINO
+        <span style="color:var(--primary); font-weight: bold;">SICNOVA</span> | IES SANTO REINO
     </header>
 
-    <div class="app-wrapper">
-
-        <!-- PANTALLA 1: SELECCIÓN -->
-        <div id="screen-start" class="screen active">
-            <h1>Generador de Avatar</h1>
-            <p class="subtitle">Digitalización 3D realista</p>
-            
-            <button class="btn btn-adult" onclick="startAdult()">Soy Adulto (+18)</button>
-            <button class="btn btn-minor" onclick="startMinor()">Soy Menor de Edad</button>
+    <!-- PANTALLA INICIAL -->
+    <div id="screen-start" class="container active">
+        <h1>Generador de Avatar</h1>
+        <p style="color:#888">Selecciona tu edad para comenzar</p>
+        <div class="screen active">
+            <button class="btn btn-adult" onclick="startAdult()">SOY ADULTO</button>
+            <button class="btn btn-minor" onclick="startMinor()">SOY MENOR</button>
         </div>
+    </div>
 
-        <!-- PANTALLA 2: MENOR (VIDEO) -->
-        <div id="screen-video" class="screen" style="max-width: 100%;">
-            <video id="vid" controls>
-                <!-- REEMPLAZA ESTA URL POR TU VIDEO CUANDO LO TENGAS -->
+    <!-- PANTALLA MENOR (VIDEO) -->
+    <div id="screen-video" class="container">
+        <div class="screen active">
+            <video id="player" controls>
                 <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
             </video>
-            <button class="btn btn-back" onclick="location.reload()">Volver</button>
+            <button class="back-btn" onclick="location.reload()">VOLVER</button>
         </div>
+    </div>
 
-        <!-- PANTALLA 3: ADULTO (MOTOR IA) -->
-        <div id="screen-avatar" class="screen" style="max-width: 100%;">
-            <div id="loading-msg">Iniciando motor de cámara e IA...</div>
-            <iframe id="avatar-frame" allow="camera *; microphone *; clipboard-write"></iframe>
-            <button class="btn btn-back" onclick="location.reload()">Cerrar sesión</button>
-        </div>
-
+    <!-- PANTALLA ADULTO (AVATAR) -->
+    <div id="avatar-container">
+        <!-- IMPORTANTE: Los permisos allow="camera;..." son críticos para Vercel -->
+        <iframe 
+            id="rpm-frame" 
+            allow="camera *; microphone *; clipboard-write" 
+            src="">
+        </iframe>
+        <button class="back-btn" onclick="location.reload()">SALIR DEL EDITOR</button>
     </div>
 
     <script>
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
+        const startScreen = document.getElementById('screen-start');
+        const videoScreen = document.getElementById('screen-video');
+        const avatarContainer = document.getElementById('avatar-container');
+        const frame = document.getElementById('rpm-frame');
 
         function startAdult() {
-            showScreen('screen-avatar');
-            const frame = document.getElementById('avatar-frame');
-            // Usamos la URL oficial de Ready Player Me con tema oscuro
-            frame.src = "https://readyplayer.me/es/avatar?frameApi&theme=dark";
-
-            frame.onload = () => {
-                document.getElementById('loading-msg').style.display = 'none';
-            };
+            startScreen.style.display = 'none';
+            avatarContainer.style.display = 'block';
+            
+            // Usamos el subdominio 'demo' oficial que siempre está activo
+            // 'theme=dark' pone el fondo negro en el editor
+            frame.src = "https://demo.readyplayer.me/es/avatar?frameApi&theme=dark";
         }
 
         function startMinor() {
-            showScreen('screen-video');
-            document.getElementById('vid').play();
+            startScreen.style.display = 'none';
+            videoScreen.style.display = 'flex';
+            document.getElementById('player').play();
         }
 
-        // Captura el avatar cuando el usuario termina (opcional para desarrolladores)
+        // Manejo de errores por si el iframe es bloqueado por el navegador
         window.addEventListener('message', (event) => {
-            const url = event.data;
-            if (typeof url === 'string' && url.includes('http')) {
-                console.log("Avatar finalizado. URL del modelo:", url);
-            }
+            // Aquí puedes recibir el modelo 3D cuando el usuario termine
+            // console.log("Mensaje recibido:", event.data);
         });
     </script>
 </body>
