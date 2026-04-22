@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sicnova - IES Santo Reino</title>
     <style>
         :root {
@@ -12,123 +12,135 @@
         }
 
         body, html {
-            margin: 0; padding: 0; height: 100%;
+            margin: 0; padding: 0; width: 100%; height: 100%;
             background-color: var(--bg); color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden; /* Evita scrolls extraños en el móvil */
         }
 
-        .container {
-            display: flex; flex-direction: column;
-            height: 100%; width: 100%;
+        /* Contenedor para centrar contenido */
+        .full-screen {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: none; flex-direction: column;
             align-items: center; justify-content: center;
-            text-align: center;
+            background: var(--bg);
         }
+
+        .active { display: flex; }
 
         header {
-            position: absolute; top: 0; width: 100%;
-            padding: 20px; background: rgba(0,0,0,0.8);
-            border-bottom: 1px solid #222; z-index: 10;
+            position: fixed; top: 0; width: 100%;
+            padding: 20px; text-align: center;
+            background: rgba(0,0,0,0.9);
+            border-bottom: 1px solid #222; z-index: 100;
         }
 
-        .screen { display: none; width: 90%; max-width: 500px; }
-        .active { display: block; }
-
+        /* Botones */
+        .menu-box { width: 90%; max-width: 400px; text-align: center; }
+        
         .btn {
-            display: block; width: 100%; padding: 20px; margin: 15px 0;
-            border: none; border-radius: 15px; font-size: 1.1rem;
+            display: block; width: 100%; padding: 22px; margin: 20px 0;
+            border: none; border-radius: 15px; font-size: 1.2rem;
             font-weight: bold; cursor: pointer; transition: 0.3s;
+            text-transform: uppercase;
         }
 
-        .btn-adult { background: var(--primary); color: white; }
-        .btn-minor { background: #222; color: #fff; border: 1px solid #444; }
+        .btn-adult { background: var(--primary); color: white; box-shadow: 0 5px 15px rgba(0,123,255,0.4); }
+        .btn-minor { background: #222; color: #aaa; border: 1px solid #444; }
 
-        /* Contenedor del Generador */
-        #avatar-container {
-            width: 100%; height: 100vh;
-            display: none; position: relative;
-        }
+        /* Estilo Video */
+        video { width: 95%; max-width: 600px; border-radius: 15px; box-shadow: 0 0 30px rgba(255,255,255,0.1); }
 
-        iframe {
-            width: 100%; height: 100%; border: none;
-            background: #000;
-        }
+        /* Iframe Avatar */
+        iframe { width: 100%; height: 100%; border: none; padding-top: 60px; }
 
-        video { width: 100%; border-radius: 15px; background: #000; }
-
-        .back-btn {
-            position: absolute; bottom: 20px; left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255,255,255,0.2);
-            color: white; padding: 10px 20px; border-radius: 20px;
-            text-decoration: none; font-size: 0.8rem; z-index: 20;
-            border: none; cursor: pointer;
+        .btn-back {
+            position: fixed; bottom: 20px;
+            background: rgba(255,255,255,0.1);
+            color: white; padding: 10px 20px; border-radius: 30px;
+            border: 1px solid #444; z-index: 101; cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <header>
+    <header id="main-header">
         <span style="color:var(--primary); font-weight: bold;">SICNOVA</span> | IES SANTO REINO
     </header>
 
-    <!-- PANTALLA INICIAL -->
-    <div id="screen-start" class="container active">
-        <h1>Generador de Avatar</h1>
-        <p style="color:#888">Selecciona tu edad para comenzar</p>
-        <div class="screen active">
-            <button class="btn btn-adult" onclick="startAdult()">SOY ADULTO</button>
-            <button class="btn btn-minor" onclick="startMinor()">SOY MENOR</button>
+    <!-- PANTALLA 1: SELECTOR -->
+    <div id="screen-selector" class="full-screen active">
+        <div class="menu-box">
+            <h1>Bienvenido</h1>
+            <p style="color:#888; margin-bottom: 40px;">Selecciona tu rango de edad para continuar</p>
+            <button class="btn btn-adult" onclick="goToAdult()">Soy Adulto (+18)</button>
+            <button class="btn btn-minor" onclick="goToMinor()">Soy Menor de Edad</button>
         </div>
     </div>
 
-    <!-- PANTALLA MENOR (VIDEO) -->
-    <div id="screen-video" class="container">
-        <div class="screen active">
-            <video id="player" controls>
-                <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-            </video>
-            <button class="back-btn" onclick="location.reload()">VOLVER</button>
-        </div>
+    <!-- PANTALLA 2: MENOR (VIDEO) -->
+    <div id="screen-video" class="full-screen">
+        <video id="main-video" controls>
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+            Tu navegador no soporta video.
+        </video>
+        <button class="btn-back" onclick="resetApp()">← VOLVER AL INICIO</button>
     </div>
 
-    <!-- PANTALLA ADULTO (AVATAR) -->
-    <div id="avatar-container">
-        <!-- IMPORTANTE: Los permisos allow="camera;..." son críticos para Vercel -->
+    <!-- PANTALLA 3: ADULTO (AVATAR/CÁMARA) -->
+    <div id="screen-avatar" class="full-screen">
+        <!-- El allow="camera" es vital para que Vercel habilite la cámara del móvil -->
         <iframe 
-            id="rpm-frame" 
-            allow="camera *; microphone *; clipboard-write" 
+            id="avatar-iframe" 
+            allow="camera *; microphone *; clipboard-write"
             src="">
         </iframe>
-        <button class="back-btn" onclick="location.reload()">SALIR DEL EDITOR</button>
+        <button class="btn-back" onclick="resetApp()">← SALIR DEL ESCÁNER</button>
     </div>
 
     <script>
-        const startScreen = document.getElementById('screen-start');
-        const videoScreen = document.getElementById('screen-video');
-        const avatarContainer = document.getElementById('avatar-container');
-        const frame = document.getElementById('rpm-frame');
+        const sSelector = document.getElementById('screen-selector');
+        const sVideo = document.getElementById('screen-video');
+        const sAvatar = document.getElementById('screen-avatar');
+        
+        const videoPlayer = document.getElementById('main-video');
+        const iframe = document.getElementById('avatar-iframe');
+        const header = document.getElementById('main-header');
 
-        function startAdult() {
-            startScreen.style.display = 'none';
-            avatarContainer.style.display = 'block';
+        // FUNCIÓN PARA ADULTOS
+        function goToAdult() {
+            // 1. Ocultar selector
+            sSelector.classList.remove('active');
+            // 2. Mostrar contenedor de avatar
+            sAvatar.classList.add('active');
+            // 3. Cargar el motor (Ready Player Me con tema oscuro)
+            // Se usa el subdominio 'demo' que es el más estable
+            iframe.src = "https://demo.readyplayer.me/es/avatar?frameApi&theme=dark";
+        }
+
+        // FUNCIÓN PARA MENORES
+        function goToMinor() {
+            // 1. Ocultar selector
+            sSelector.classList.remove('active');
+            // 2. Mostrar contenedor de video
+            sVideo.classList.add('active');
+            // 3. Reproducir video
+            videoPlayer.play();
+        }
+
+        // FUNCIÓN RESET (VOLVER)
+        function resetApp() {
+            // Pausar video y limpiar iframe
+            videoPlayer.pause();
+            videoPlayer.currentTime = 0;
+            iframe.src = "";
             
-            // Usamos el subdominio 'demo' oficial que siempre está activo
-            // 'theme=dark' pone el fondo negro en el editor
-            frame.src = "https://demo.readyplayer.me/es/avatar?frameApi&theme=dark";
+            // Alternar pantallas
+            sVideo.classList.remove('active');
+            sAvatar.classList.remove('active');
+            sSelector.classList.add('active');
         }
-
-        function startMinor() {
-            startScreen.style.display = 'none';
-            videoScreen.style.display = 'flex';
-            document.getElementById('player').play();
-        }
-
-        // Manejo de errores por si el iframe es bloqueado por el navegador
-        window.addEventListener('message', (event) => {
-            // Aquí puedes recibir el modelo 3D cuando el usuario termine
-            // console.log("Mensaje recibido:", event.data);
-        });
     </script>
 </body>
 </html>
