@@ -3,85 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sicnova AI | Santo Reino</title>
+    <title>Sicnova AI | Instituto Santo Reino</title>
     <style>
         :root { --primary: #00f2ff; --bg: #000; --accent: #7000ff; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: #fff; font-family: -apple-system, system-ui, sans-serif; overflow: hidden; }
         
-        .app-container { display: flex; flex-direction: column; height: 100vh; width: 100%; align-items: center; justify-content: center; }
-        header { position: fixed; top: 0; width: 100%; padding: 25px; text-align: center; background: rgba(0,0,0,0.9); border-bottom: 1px solid #222; z-index: 100; backdrop-filter: blur(10px); }
-        
-        .screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; text-align: center; }
+        /* HEADER */
+        header { position: fixed; top: 0; width: 100%; padding: 20px; text-align: center; background: rgba(0,0,0,0.9); border-bottom: 1px solid #222; z-index: 1000; backdrop-filter: blur(10px); font-size: 0.9rem; letter-spacing: 1px; }
+
+        /* PANTALLAS */
+        .screen { display: none; width: 100%; height: 100vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box; position: absolute; top: 0; left: 0; }
         .active { display: flex; }
 
-        /* Estilo Grok / Sicnova */
-        h1 { font-weight: 200; font-size: 2.2rem; margin-bottom: 10px; }
-        h1 b { color: var(--primary); text-shadow: 0 0 20px rgba(0, 242, 255, 0.5); }
-        .subtitle { color: #555; margin-bottom: 40px; letter-spacing: 1px; }
-
-        .btn { display: block; width: 100%; max-width: 320px; padding: 22px; margin: 12px 0; border: none; border-radius: 16px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.4s; text-transform: uppercase; }
-        .btn-adult { background: linear-gradient(90deg, var(--primary), var(--accent)); color: #000; }
+        /* BOTONES GROK STYLE */
+        .btn { display: block; width: 100%; max-width: 300px; padding: 22px; margin: 12px 0; border: none; border-radius: 16px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.4s; text-transform: uppercase; }
+        .btn-adult { background: linear-gradient(90deg, var(--primary), var(--accent)); color: #000; box-shadow: 0 0 20px rgba(0, 242, 255, 0.3); }
         .btn-minor { background: #111; color: #fff; border: 1px solid #333; }
         .btn:active { transform: scale(0.96); }
 
-        /* Visualizador de Foto y Escáner */
-        .preview-circle { width: 280px; height: 280px; border: 2px solid #222; border-radius: 50%; position: relative; overflow: hidden; background: #080808; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; }
-        #photo-result { width: 100%; height: 100%; object-fit: cover; display: none; }
-        .scanner-line { position: absolute; width: 100%; height: 5px; background: var(--primary); top: 0; display: none; animation: scan 2s infinite ease-in-out; box-shadow: 0 0 20px var(--primary); z-index: 10; }
+        /* CÁMARA Y ESCÁNER */
+        .camera-box { width: 280px; height: 280px; border: 2px solid #222; border-radius: 50%; position: relative; overflow: hidden; background: #080808; margin-bottom: 30px; }
+        #photo-preview { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .scanner { position: absolute; width: 100%; height: 6px; background: var(--primary); top: 0; display: none; animation: scan 2s infinite ease-in-out; box-shadow: 0 0 20px var(--primary); z-index: 10; }
         @keyframes scan { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
 
-        .loading-bar { width: 100%; max-width: 280px; height: 4px; background: #111; border-radius: 10px; margin-top: 20px; display: none; overflow: hidden; }
-        .loading-progress { width: 0%; height: 100%; background: var(--primary); animation: progress 4s forwards; }
-        @keyframes progress { to { width: 100%; } }
+        /* MOTOR DE AVATAR (IFRAME) */
+        #avatar-frame-container { display: none; width: 100%; height: 100vh; position: absolute; top: 0; left: 0; z-index: 500; background: #000; }
+        iframe { width: 100%; height: 100%; border: none; }
 
-        video { width: 100%; max-width: 500px; border-radius: 20px; box-shadow: 0 0 40px rgba(0,0,0,1); }
-        .back-btn { position: fixed; bottom: 30px; color: #444; background: none; border: none; cursor: pointer; font-size: 0.9rem; text-decoration: underline; }
+        /* VIDEO MENOR */
+        video { width: 100%; max-width: 500px; border-radius: 20px; }
+
+        .back-btn { position: fixed; bottom: 30px; color: #444; background: none; border: none; cursor: pointer; text-decoration: underline; z-index: 1001; }
+        .loading-text { color: var(--primary); font-family: monospace; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <span style="letter-spacing: 3px;"><b>SICNOVA</b> AI</span>
-    </header>
+    <header><b>SICNOVA AI</b> | IES SANTO REINO</header>
 
-    <div class="app-container">
+    <!-- 1. PANTALLA INICIAL -->
+    <div id="screen-selector" class="screen active">
+        <h1 style="font-weight: 200;">Generador <b>Avatar 3D</b></h1>
+        <p style="color: #555; margin-bottom: 40px;">Procesamiento de imagen por IA</p>
+        <button class="btn btn-adult" onclick="showScreen('screen-capture')">Acceso Adulto</button>
+        <button class="btn btn-minor" onclick="startMinorFlow()">Acceso Menor</button>
+    </div>
 
-        <!-- PANTALLA 1: SELECTOR -->
-        <div id="screen-selector" class="screen active">
-            <h1>Motor <b>Neuronal</b></h1>
-            <p class="subtitle">IES SANTO REINO</p>
-            <button class="btn btn-adult" onclick="goToUpload()">Acceso Adulto</button>
-            <button class="btn btn-minor" onclick="goToMinor()">Acceso Menor</button>
+    <!-- 2. PANTALLA CAPTURA (ADULTO) -->
+    <div id="screen-capture" class="screen">
+        <div class="camera-box">
+            <div id="scanner" class="scanner"></div>
+            <img id="photo-preview" src="">
+            <div id="cam-label" style="margin-top: 110px; color: #333;">Listo para escaneo</div>
+        </div>
+        
+        <input type="file" id="camera-input" accept="image/*" capture="user" style="display:none" onchange="handlePhoto(this)">
+        <button id="btn-snap" class="btn btn-adult" onclick="document.getElementById('camera-input').click()">Hacer Selfie</button>
+        
+        <div id="processing" style="display:none">
+            <div class="loading-text" id="status-text">ANALIZANDO ROSTRO...</div>
         </div>
 
-        <!-- PANTALLA 2: CAPTURA (ADULTO) -->
-        <div id="screen-upload" class="screen">
-            <div class="preview-circle">
-                <div id="scanner" class="scanner-line"></div>
-                <img id="photo-result" src="">
-                <span id="label" style="color:#333">Esperando<br>Captura</span>
-            </div>
+        <button class="back-btn" onclick="location.reload()">CANCELAR</button>
+    </div>
 
-            <input type="file" id="input-cam" accept="image/*" capture="user" style="display:none" onchange="handlePhoto(this)">
-            
-            <button id="btn-main" class="btn btn-adult" onclick="document.getElementById('input-cam').click()">Hacer Selfie</button>
-            
-            <div id="status-container" style="display:none">
-                <p id="status-text" style="color:var(--primary); font-family: monospace;">ANALIZANDO ROSTRO...</p>
-                <div class="loading-bar" style="display:block;"><div class="loading-progress"></div></div>
-            </div>
+    <!-- 3. PANTALLA MOTOR AVATAR (DENTRO DE LA APP) -->
+    <div id="avatar-frame-container">
+        <!-- Cargamos Avaturn directamente aquí -->
+        <iframe id="ai-engine" allow="camera; microphone; display-capture; autoplay; clipboard-write"></iframe>
+        <button class="back-btn" onclick="location.reload()">SALIR DEL MOTOR</button>
+    </div>
 
-            <button class="back-btn" onclick="location.reload()">CANCELAR</button>
-        </div>
-
-        <!-- PANTALLA 3: MENOR (VIDEO) -->
-        <div id="screen-minor" class="screen">
-            <video id="minor-video" controls playsinline>
-                <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-            </video>
-            <button class="back-btn" onclick="location.reload()">VOLVER</button>
-        </div>
-
+    <!-- 4. PANTALLA MENOR (VIDEO) -->
+    <div id="screen-minor" class="screen">
+        <video id="minor-video" controls playsinline>
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        </video>
+        <button class="back-btn" onclick="location.reload()">VOLVER</button>
     </div>
 
     <script>
@@ -90,36 +89,42 @@
             document.getElementById(id).classList.add('active');
         }
 
-        function goToUpload() { showScreen('screen-upload'); }
-
-        function goToMinor() { 
-            showScreen('screen-minor'); 
-            document.getElementById('minor-video').play(); 
+        function startMinorFlow() {
+            showScreen('screen-minor');
+            document.getElementById('minor-video').play();
         }
 
         function handlePhoto(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    // Mostrar Foto
-                    document.getElementById('label').style.display = 'none';
-                    const img = document.getElementById('photo-result');
+                    // Mostrar la foto capturada
+                    document.getElementById('cam-label').style.display = 'none';
+                    const img = document.getElementById('photo-preview');
                     img.src = e.target.result;
                     img.style.display = 'block';
 
                     // Iniciar Animación IA estilo Grok
                     document.getElementById('scanner').style.display = 'block';
-                    document.getElementById('btn-main').style.display = 'none';
-                    document.getElementById('status-container').style.display = 'block';
+                    document.getElementById('btn-snap').style.display = 'none';
+                    document.getElementById('processing').style.display = 'block';
 
+                    // Simular procesamiento neuronal
                     const status = document.getElementById('status-text');
-                    setTimeout(() => status.innerText = "GENERANDO MALLA 3D...", 1500);
-                    setTimeout(() => status.innerText = "SINCRO NEURONAL...", 3000);
+                    setTimeout(() => status.innerText = "GENERANDO MALLA NEURONAL...", 1500);
+                    setTimeout(() => status.innerText = "SINCRONIZANDO CON SICNOVA CLOUD...", 3000);
                     
-                    // PASO FINAL: Redirección al motor global para evitar bloqueos de IP
+                    // PASO FINAL: Cargar el motor realista dentro de la app
                     setTimeout(() => {
-                        // Usamos la URL raíz que NO depende de subdominios 'demo'
-                        window.location.href = "https://readyplayer.me/es/avatar?theme=dark";
+                        const container = document.getElementById('avatar-frame-container');
+                        const iframe = document.getElementById('ai-engine');
+                        
+                        // Usamos Avaturn que es el más realista
+                        // URL de producción estable
+                        iframe.src = "https://avaturn.me"; 
+                        
+                        container.style.display = 'block';
+                        document.getElementById('screen-capture').style.display = 'none';
                     }, 4500);
                 }
                 reader.readAsDataURL(input.files[0]);
