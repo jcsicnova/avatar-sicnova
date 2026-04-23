@@ -5,83 +5,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sicnova AI | Santo Reino</title>
     <style>
-        :root { --bg: #000; --primary: #00f2ff; --text: #fff; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: var(--text); font-family: sans-serif; overflow: hidden; }
+        :root { --primary: #00f2ff; --bg: #000; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         
-        header { position: fixed; top: 0; width: 100%; padding: 20px; text-align: center; background: rgba(0,0,0,0.9); border-bottom: 1px solid #222; z-index: 100; font-size: 0.9rem; }
-        
-        .screen { display: none; width: 100%; height: 100vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box; }
+        /* Capas de Pantalla */
+        .screen { display: none; width: 100%; height: 100vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: absolute; top: 0; left: 0; padding: 20px; box-sizing: border-box; }
         .active { display: flex; }
 
-        .btn { display: block; width: 100%; max-width: 280px; padding: 18px; margin: 10px 0; border: none; border-radius: 50px; font-size: 1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        .btn-primary { background: var(--primary); color: #000; box-shadow: 0 0 15px rgba(0, 242, 255, 0.4); }
+        header { position: fixed; top: 0; width: 100%; padding: 20px; text-align: center; background: rgba(0,0,0,0.8); border-bottom: 1px solid #333; z-index: 100; font-weight: bold; }
+        
+        .btn { display: block; width: 100%; max-width: 300px; padding: 20px; margin: 15px 0; border: none; border-radius: 50px; font-size: 1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .btn-primary { background: var(--primary); color: #000; box-shadow: 0 0 20px rgba(0, 242, 255, 0.4); }
         .btn-outline { background: transparent; color: #fff; border: 1px solid #444; }
 
-        /* Área de foto */
-        .preview-box { width: 250px; height: 250px; border: 2px solid #222; border-radius: 20px; position: relative; overflow: hidden; background: #050505; margin-bottom: 20px; }
+        /* Contenedor de Imagen y Escáner */
+        .preview-area { width: 280px; height: 280px; border: 1px solid #222; border-radius: 20px; position: relative; overflow: hidden; background: #050505; margin-bottom: 20px; }
         #preview-img { width: 100%; height: 100%; object-fit: cover; display: none; }
-        
-        .scan-line { position: absolute; width: 100%; height: 3px; background: var(--primary); top: 0; display: none; animation: scan 2s infinite linear; box-shadow: 0 0 10px var(--primary); }
+        .scan-line { position: absolute; width: 100%; height: 4px; background: var(--primary); top: 0; display: none; animation: scan 2.5s infinite linear; box-shadow: 0 0 15px var(--primary); z-index: 5; }
         @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
 
-        /* VIDEO FIX */
-        #video-wrapper { width: 100%; max-width: 350px; display: none; margin-bottom: 20px; border-radius: 15px; overflow: hidden; border: 1px solid var(--primary); background: #111; }
-        video { width: 100%; display: block; }
+        /* VIDEO AVATAR (ESTILO GROK) */
+        .video-container { width: 100%; max-width: 400px; border-radius: 20px; overflow: hidden; border: 2px solid var(--primary); display: none; background: #111; position: relative; }
+        video { width: 100%; height: auto; display: block; }
 
-        .loader-text { color: var(--primary); font-family: monospace; font-size: 0.8rem; margin: 10px 0; display: none; }
-        .back-link { margin-top: 30px; color: #555; cursor: pointer; text-decoration: underline; font-size: 0.8rem; }
+        #status-text { color: var(--primary); font-family: monospace; font-size: 0.9rem; margin-top: 15px; }
+        .back-btn { margin-top: 30px; color: #555; background: none; border: none; cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
 
-    <header><b>SICNOVA AI</b> | IES SANTO REINO</header>
+    <header>SICNOVA AI | IES SANTO REINO</header>
 
-    <!-- 1. INICIO -->
+    <!-- PANTALLA 1: INICIO -->
     <div id="screen-start" class="screen active">
-        <h1 style="font-weight: 300;">Digitalización <br><b>Neuronal</b></h1>
-        <button class="btn btn-primary" onclick="showScreen('screen-upload')">Adulto (Escaneo)</button>
-        <button class="btn btn-outline" onclick="startMinor()">Menor de Edad</button>
+        <h1 style="font-weight: 200;">Generador de <br><b style="color:var(--primary)">Avatares IA</b></h1>
+        <button class="btn btn-primary" onclick="showScreen('screen-upload')">Adulto (Subir Foto)</button>
+        <button class="btn btn-outline" onclick="playMinor()">Menor de Edad</button>
     </div>
 
-    <!-- 2. SUBIR FOTO -->
+    <!-- PANTALLA 2: CARGA DE FOTO -->
     <div id="screen-upload" class="screen">
-        <div class="preview-box">
+        <div class="preview-area">
             <div id="scanner" class="scan-line"></div>
             <img id="preview-img" src="">
-            <div id="tap-msg" style="margin-top: 100px; color: #444;">Toca el botón para<br>hacerte un selfie</div>
+            <div id="msg" style="margin-top: 120px; color: #333;">Esperando imagen...</div>
         </div>
-        
-        <input type="file" id="fileInput" accept="image/*" capture="user" style="display:none" onchange="processImage(this)">
-        
-        <button class="btn btn-primary" id="btn-cap" onclick="document.getElementById('fileInput').click()">Hacer Foto</button>
-        <div id="status-msg" class="loader-text">INICIANDO IA...</div>
-        <button class="back-link" onclick="location.reload()">Cancelar</button>
+        <input type="file" id="fileInput" accept="image/*" capture="user" style="display:none" onchange="handleFile(this)">
+        <button class="btn btn-primary" id="btn-up" onclick="document.getElementById('fileInput').click()">Hacer Foto / Subir</button>
+        <div id="status-text" style="display:none">INICIANDO PROCESAMIENTO NEURONAL...</div>
+        <button class="back-btn" onclick="location.reload()">Cancelar</button>
     </div>
 
-    <!-- 3. RESULTADO (VIDEO) -->
+    <!-- PANTALLA 3: RESULTADO (AVATAR HABLANDO) -->
     <div id="screen-result" class="screen">
-        <h2 style="color:var(--primary); margin: 0;">Avatar Animado</h2>
-        <p style="color:#666; font-size: 0.8rem; margin-bottom: 20px;">Sincronización labial mediante IA</p>
+        <h2 style="color:var(--primary); margin:0;">Avatar Animado</h2>
+        <p style="color:#555; font-size: 0.8rem; margin-bottom: 20px;">Renderizado Grok-Style finalizado</p>
 
-        <div id="video-wrapper">
-            <!-- He cambiado el video por uno de Cloudinary (muy compatible con iPhone) -->
+        <div class="video-container" id="v-cont">
+            <!-- Video de avatar humano hablando (Link de alta disponibilidad) -->
             <video id="avatar-video" playsinline webkit-playsinline>
-                <source src="https://res.cloudinary.com/demo/video/upload/v1617116104/sample_video.mp4" type="video/mp4">
+                <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
             </video>
         </div>
 
-        <button class="btn btn-primary" id="play-btn" onclick="playVideo()">VER ANIMACIÓN</button>
+        <button class="btn btn-primary" id="activate-btn" onclick="activateAvatar()">ACTIVAR ANIMACIÓN</button>
         
-        <p style="color:var(--primary); font-style: italic; font-size: 0.9rem;">IA de Sicnova: Digitalización completa.</p>
-        <button class="back-link" onclick="location.reload()">Nuevo escaneo</button>
+        <div id="frase-ia" style="margin-top: 20px; color: var(--primary); font-style: italic; display: none;">
+            "IA de Sicnova: Digitalización completa para IES Santo Reino."
+        </div>
+
+        <button class="back-btn" onclick="location.reload()">Nuevo escaneo</button>
     </div>
 
-    <!-- 4. MENORES -->
+    <!-- PANTALLA 4: MENOR -->
     <div id="screen-minor" class="screen">
-        <video id="minor-video" controls playsinline style="width:100%; max-width:350px;">
-            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        <video id="minor-video" controls style="width:100%; max-width:400px; border-radius:15px;">
+            <source src="https://www.w3schools.com/html/movie.mp4" type="video/mp4">
         </video>
-        <button class="back-link" onclick="location.reload()">Volver</button>
+        <button class="back-btn" onclick="location.reload()">Volver</button>
     </div>
 
     <script>
@@ -90,48 +91,48 @@
             document.getElementById(id).classList.add('active');
         }
 
-        function startMinor() {
+        function playMinor() {
             showScreen('screen-minor');
             document.getElementById('minor-video').play();
         }
 
-        function processImage(input) {
+        function handleFile(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('tap-msg').style.display = 'none';
+                    document.getElementById('msg').style.display = 'none';
                     const img = document.getElementById('preview-img');
                     img.src = e.target.result;
                     img.style.display = 'block';
                     
                     document.getElementById('scanner').style.display = 'block';
-                    document.getElementById('status-msg').style.display = 'block';
-                    document.getElementById('btn-cap').style.display = 'none';
+                    document.getElementById('status-text').style.display = 'block';
+                    document.getElementById('btn-up').style.display = 'none';
 
-                    // Simulación de carga
-                    setTimeout(() => { document.getElementById('status-msg').innerText = "GENERANDO AVATAR..."; }, 1500);
-                    setTimeout(() => { showScreen('screen-result'); }, 3500);
+                    // Simulación de procesamiento IA Grok
+                    setTimeout(() => { document.getElementById('status-text').innerText = "GENERANDO MALLA FACIAL..."; }, 1500);
+                    setTimeout(() => { document.getElementById('status-text').innerText = "SINCRONIZANDO VOZ..."; }, 3000);
+                    setTimeout(() => { showScreen('screen-result'); }, 4500);
                 }
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        function playVideo() {
+        function activateAvatar() {
             const vid = document.getElementById('avatar-video');
-            const wrapper = document.getElementById('video-wrapper');
-            const btn = document.getElementById('play-btn');
-            
-            wrapper.style.display = 'block';
+            const cont = document.getElementById('v-cont');
+            const btn = document.getElementById('activate-btn');
+            const frase = document.getElementById('frase-ia');
+
+            cont.style.display = 'block';
+            frase.style.display = 'block';
             btn.style.display = 'none';
-            
-            // Forzar reproducción
-            const promise = vid.play();
-            if (promise !== undefined) {
-                promise.catch(error => {
-                    console.log("Error al reproducir: ", error);
-                    alert("Toca de nuevo para reproducir");
-                });
-            }
+
+            // Intentar reproducir con manejo de errores
+            vid.play().catch(e => {
+                console.error("Error al reproducir video:", e);
+                alert("Error de carga. Intenta recargar la página.");
+            });
         }
     </script>
 </body>
