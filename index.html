@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sicnova AI | Santo Reino</title>
+    <title>Sicnova AI | Generador de Avatares</title>
     <style>
         :root {
             --bg: #000000;
@@ -15,31 +15,26 @@
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
             background-color: var(--bg); color: var(--text);
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             overflow: hidden;
-        }
-
-        /* Estética Grok (Fondo oscuro con aura) */
-        body::before {
-            content: ""; position: absolute; width: 300px; height: 300px;
-            background: var(--accent); filter: blur(150px);
-            opacity: 0.2; top: -50px; right: -50px; z-index: -1;
         }
 
         .screen {
             display: none; width: 100%; height: 100vh;
             flex-direction: column; align-items: center; justify-content: center;
             text-align: center; padding: 20px; box-sizing: border-box;
+            position: absolute; top: 0; left: 0;
         }
 
         .active { display: flex; }
 
         header {
             position: fixed; top: 0; width: 100%; padding: 20px;
-            text-align: center; background: rgba(0,0,0,0.8);
+            text-align: center; background: rgba(0,0,0,0.9);
             border-bottom: 1px solid #222; z-index: 100;
         }
 
+        /* Botones estilo Grok/Sicnova */
         .btn {
             display: block; width: 100%; max-width: 300px; padding: 20px;
             margin: 15px 0; border: none; border-radius: 50px;
@@ -47,88 +42,90 @@
             transition: 0.3s; text-transform: uppercase;
         }
 
-        .btn-primary { background: var(--primary); color: #000; }
+        .btn-primary { background: var(--primary); color: #000; box-shadow: 0 0 20px rgba(0, 242, 255, 0.4); }
         .btn-outline { background: transparent; color: #fff; border: 1px solid #444; }
 
-        /* Estilo Cámara / Upload */
-        .upload-area {
-            width: 250px; height: 250px; border: 2px dashed #444;
-            border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; margin-bottom: 30px; overflow: hidden;
-            background: #0a0a0a; position: relative;
+        /* Área de carga de foto */
+        .upload-container {
+            width: 280px; height: 350px; border: 2px solid #222;
+            border-radius: 20px; position: relative; overflow: hidden;
+            background: #050505; display: flex; align-items: center; justify-content: center;
         }
 
         #preview-img { width: 100%; height: 100%; object-fit: cover; display: none; }
 
-        /* Barra de carga IA */
-        .ai-loader {
-            width: 80%; max-width: 300px; height: 4px;
-            background: #222; border-radius: 10px; overflow: hidden;
-            margin-top: 20px; display: none;
-        }
-        .ai-loader div {
-            width: 0%; height: 100%; background: var(--primary);
-            box-shadow: 0 0 10px var(--primary);
-            animation: load 4s forwards;
+        /* Escáner de IA */
+        .scanner-bar {
+            position: absolute; width: 100%; height: 4px;
+            background: var(--primary); box-shadow: 0 0 15px var(--primary);
+            top: 0; display: none; z-index: 10; animation: scan 2s infinite ease-in-out;
         }
 
-        @keyframes load { to { width: 100%; } }
+        @keyframes scan { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
 
-        video { width: 100%; max-width: 400px; border-radius: 20px; box-shadow: 0 0 50px rgba(0, 242, 255, 0.2); }
+        /* Video de Avatar */
+        #avatar-video {
+            width: 100%; max-width: 400px; border-radius: 20px;
+            display: none; border: 1px solid var(--primary);
+        }
 
-        .back-btn { position: fixed; bottom: 30px; color: #666; background: none; border: none; cursor: pointer; text-decoration: underline; }
+        .loader-text { color: var(--primary); font-family: monospace; margin-top: 15px; display: none; }
+
+        .back-btn { position: fixed; bottom: 30px; color: #555; background: none; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <header>
-        <span style="color:var(--primary)">SICNOVA</span> AI | SANTO REINO
+        <b style="color:var(--primary)">SICNOVA</b> AI | SANTO REINO
     </header>
 
-    <!-- 1. PANTALLA INICIAL -->
+    <!-- 1. INICIO -->
     <div id="screen-start" class="screen active">
-        <h1 style="font-weight: 200;">Motor de <br><b>Animación Neuronal</b></h1>
-        <button class="btn btn-primary" onclick="showScreen('screen-upload')">Adulto (Subir Foto)</button>
-        <button class="btn btn-outline" onclick="playMinorVideo()">Menor de Edad</button>
+        <h1 style="font-size: 2rem; font-weight: 300;">IA <br><b>ANIMATOR</b></h1>
+        <button class="btn btn-primary" onclick="showScreen('screen-upload')">Adulto (Selfie)</button>
+        <button class="btn btn-outline" onclick="startMinorFlow()">Menor de Edad</button>
     </div>
 
-    <!-- 2. PANTALLA SUBIR FOTO -->
+    <!-- 2. SUBIR / HACER FOTO -->
     <div id="screen-upload" class="screen">
-        <h2>Paso 1: Captura</h2>
-        <p style="color: #666;">Sube un archivo o hazte un selfie</p>
-        
-        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-            <span id="label-upload">📸<br>Tocar para<br>hacer foto</span>
-            <img id="preview-img" src="" alt="Preview">
+        <div class="upload-container" id="drop-area">
+            <div id="scanner" class="scanner-bar"></div>
+            <span id="placeholder-text" style="color:#444">Toca para capturar<br>foto de rostro</span>
+            <img id="preview-img" src="">
         </div>
         
-        <input type="file" id="fileInput" accept="image/*" capture="user" style="display:none" onchange="handleImage(this)">
+        <input type="file" id="fileInput" accept="image/*" capture="user" style="display:none" onchange="processImage(this)">
         
-        <div id="ai-status" style="display:none">
-            <p id="status-text">Analizando rasgos faciales...</p>
-            <div class="ai-loader" id="loader"><div id="bar"></div></div>
-        </div>
-
+        <button class="btn btn-primary" id="btn-capture" onclick="document.getElementById('fileInput').click()">Hacer Foto / Subir</button>
+        
+        <div id="status-msg" class="loader-text">GENERANDO RED NEURONAL...</div>
         <button class="back-btn" onclick="location.reload()">Cancelar</button>
     </div>
 
-    <!-- 3. PANTALLA RESULTADO (ANIMACIÓN) -->
+    <!-- 3. RESULTADO ADULTO (AVATAR HABLANDO) -->
     <div id="screen-result" class="screen">
-        <h2 style="color:var(--primary)">Avatar Generado</h2>
-        <!-- Este video simula el avatar animado estilo Grok -->
+        <h2 style="color:var(--primary); margin-bottom: 5px;">Avatar Animado</h2>
+        <p style="color:#666; margin-bottom: 20px;">Sincronización labial completada</p>
+        
+        <!-- Video de un Avatar Humano Real hablando -->
         <video id="avatar-video" playsinline>
-            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+            <source src="https://v.ftcdn.net/05/56/63/01/700_F_556630132_K2MDRQ3FasR9fOsh4X6S9E3V9E3pX1G9_ST.mp4" type="video/mp4">
         </video>
-        <p id="phrase-text" style="margin-top: 20px; font-style: italic; color: #888;">"Procesando voz sintética..."</p>
-        <button class="btn btn-outline" onclick="location.reload()" style="margin-top: 20px;">Repetir</button>
+
+        <button class="btn btn-primary" id="play-btn" onclick="playAvatar()">VER ANIMACIÓN</button>
+        
+        <p id="custom-phrase" style="margin-top:20px; color:var(--primary); font-style: italic;"></p>
+        <button class="back-btn" onclick="location.reload()">Nuevo escaneo</button>
     </div>
 
-    <!-- 4. PANTALLA MENOR -->
+    <!-- 4. MENORES -->
     <div id="screen-minor" class="screen">
-        <video id="minor-video" controls>
+        <h3>IES SANTO REINO - INFO</h3>
+        <video id="minor-video" controls style="width:100%; max-width:400px; border-radius:15px;">
             <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
         </video>
-        <button class="back-btn" onclick="location.reload()">Volver al inicio</button>
+        <button class="back-btn" onclick="location.reload()">Volver</button>
     </div>
 
     <script>
@@ -137,59 +134,45 @@
             document.getElementById(id).classList.add('active');
         }
 
-        function playMinorVideo() {
+        function startMinorFlow() {
             showScreen('screen-minor');
             document.getElementById('minor-video').play();
         }
 
-        function handleImage(input) {
+        function processImage(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    // Mostrar preview
-                    document.getElementById('label-upload').style.display = 'none';
+                    // Mostrar la foto del usuario
+                    document.getElementById('placeholder-text').style.display = 'none';
                     const img = document.getElementById('preview-img');
                     img.src = e.target.result;
                     img.style.display = 'block';
                     
-                    // Simular Proceso Grok
-                    processAI();
+                    // Iniciar animación de escaneo estilo Grok
+                    document.getElementById('scanner').style.display = 'block';
+                    document.getElementById('status-msg').style.display = 'block';
+                    document.getElementById('btn-capture').style.display = 'none';
+
+                    // Simular tiempos de procesamiento de IA
+                    setTimeout(() => { document.getElementById('status-msg').innerText = "MAPEANDO EXPRESIONES..."; }, 1500);
+                    setTimeout(() => { document.getElementById('status-msg').innerText = "SINTETIZANDO VOZ..."; }, 3000);
+                    setTimeout(() => {
+                        showScreen('screen-result');
+                    }, 4500);
                 }
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        function processAI() {
-            const statusText = document.getElementById('status-text');
-            const aiStatus = document.getElementById('ai-status');
-            aiStatus.style.display = 'block';
-
-            const steps = [
-                "Mapeando puntos faciales...",
-                "Generando malla 3D...",
-                "Sincronizando redes neuronales...",
-                "Finalizando animación..."
-            ];
-
-            let i = 0;
-            const interval = setInterval(() => {
-                statusText.innerText = steps[i];
-                i++;
-                if (i >= steps.length) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        finishAvatar();
-                    }, 1000);
-                }
-            }, 1000);
-        }
-
-        function finishAvatar() {
-            showScreen('screen-result');
+        function playAvatar() {
             const vid = document.getElementById('avatar-video');
+            const btn = document.getElementById('play-btn');
+            vid.style.display = 'block';
             vid.play();
-            // Aquí es donde pondrás la frase concreta que me digas
-            document.getElementById('phrase-text').innerText = "Cargando frase personalizada de Sicnova...";
+            btn.style.display = 'none';
+            // Aquí se activará tu frase en el futuro
+            document.getElementById('custom-phrase').innerText = "IA de Sicnova: Digitalización completa.";
         }
     </script>
 </body>
