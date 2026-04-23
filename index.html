@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sicnova AI - Instituto Santo Reino</title>
+    <title>Sicnova AI | Santo Reino</title>
     <style>
         :root {
             --bg: #000000;
-            --primary: #00f2ff; /* Azul neón tipo IA */
+            --primary: #00f2ff;
             --accent: #7000ff;
             --text: #ffffff;
         }
@@ -15,95 +15,68 @@
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
             background-color: var(--bg); color: var(--text);
-            font-family: 'Inter', system-ui, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             overflow: hidden;
         }
 
-        /* Fondo con rejilla tecnológica */
-        body {
-            background-image: 
-                linear-gradient(to right, #111 1px, transparent 1px),
-                linear-gradient(to bottom, #111 1px, transparent 1px);
-            background-size: 40px 40px;
+        /* Estética Grok (Fondo oscuro con aura) */
+        body::before {
+            content: ""; position: absolute; width: 300px; height: 300px;
+            background: var(--accent); filter: blur(150px);
+            opacity: 0.2; top: -50px; right: -50px; z-index: -1;
         }
 
-        header {
-            position: fixed; top: 0; width: 100%; padding: 20px;
-            text-align: center; background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px); border-bottom: 1px solid #222;
-            z-index: 100; letter-spacing: 2px;
-        }
-
-        .container {
-            display: none; flex-direction: column;
-            height: 100vh; width: 100%;
-            align-items: center; justify-content: center;
+        .screen {
+            display: none; width: 100%; height: 100vh;
+            flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 20px; box-sizing: border-box;
         }
 
         .active { display: flex; }
 
-        /* Estilo Grok / AI */
-        .glass-card {
-            background: rgba(15, 15, 15, 0.9);
-            border: 1px solid #333;
-            padding: 40px; border-radius: 24px;
-            width: 85%; max-width: 400px;
-            text-align: center;
-            box-shadow: 0 0 40px rgba(0, 242, 255, 0.1);
+        header {
+            position: fixed; top: 0; width: 100%; padding: 20px;
+            text-align: center; background: rgba(0,0,0,0.8);
+            border-bottom: 1px solid #222; z-index: 100;
         }
-
-        h1 { font-weight: 300; font-size: 1.5rem; margin-bottom: 30px; }
-        h1 span { color: var(--primary); font-weight: bold; }
 
         .btn {
-            display: block; width: 100%; padding: 20px; margin: 15px 0;
-            border: none; border-radius: 12px; font-size: 1rem;
-            font-weight: bold; cursor: pointer; transition: 0.4s;
-            text-transform: uppercase;
+            display: block; width: 100%; max-width: 300px; padding: 20px;
+            margin: 15px 0; border: none; border-radius: 50px;
+            font-size: 1rem; font-weight: bold; cursor: pointer;
+            transition: 0.3s; text-transform: uppercase;
         }
 
-        .btn-adult {
-            background: linear-gradient(45deg, var(--primary), var(--accent));
-            color: black;
+        .btn-primary { background: var(--primary); color: #000; }
+        .btn-outline { background: transparent; color: #fff; border: 1px solid #444; }
+
+        /* Estilo Cámara / Upload */
+        .upload-area {
+            width: 250px; height: 250px; border: 2px dashed #444;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; margin-bottom: 30px; overflow: hidden;
+            background: #0a0a0a; position: relative;
         }
 
-        .btn-minor {
-            background: transparent;
-            color: white;
-            border: 1px solid #444;
+        #preview-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+
+        /* Barra de carga IA */
+        .ai-loader {
+            width: 80%; max-width: 300px; height: 4px;
+            background: #222; border-radius: 10px; overflow: hidden;
+            margin-top: 20px; display: none;
+        }
+        .ai-loader div {
+            width: 0%; height: 100%; background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+            animation: load 4s forwards;
         }
 
-        .btn:hover { transform: scale(1.02); opacity: 0.9; }
+        @keyframes load { to { width: 100%; } }
 
-        /* Pantalla de Escaneo (Efecto Grok) */
-        .scanner-line {
-            position: absolute; width: 100%; height: 2px;
-            background: var(--primary);
-            box-shadow: 0 0 15px var(--primary);
-            top: 0; animation: scan 3s infinite linear;
-            display: none; z-index: 10;
-        }
+        video { width: 100%; max-width: 400px; border-radius: 20px; box-shadow: 0 0 50px rgba(0, 242, 255, 0.2); }
 
-        @keyframes scan {
-            0% { top: 0%; }
-            100% { top: 100%; }
-        }
-
-        /* Iframe & Video */
-        iframe, video {
-            width: 100%; height: 100%; border: none;
-            background: #000; padding-top: 60px;
-        }
-
-        .back-btn {
-            position: fixed; bottom: 30px; left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255,255,255,0.1);
-            border: 1px solid #444; color: white;
-            padding: 12px 25px; border-radius: 50px;
-            cursor: pointer; z-index: 101;
-            backdrop-filter: blur(5px);
-        }
+        .back-btn { position: fixed; bottom: 30px; color: #666; background: none; border: none; cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -112,59 +85,111 @@
         <span style="color:var(--primary)">SICNOVA</span> AI | SANTO REINO
     </header>
 
-    <!-- PANTALLA 1: SELECTOR -->
-    <div id="screen-selector" class="container active">
-        <div class="glass-card">
-            <h1>Generador de <span>Avatar Realista</span></h1>
-            <p style="color: #666; margin-bottom: 30px;">Iniciando motor de renderizado neuronal...</p>
-            <button class="btn btn-adult" onclick="startAdult()">Adulto (Escaneo IA)</button>
-            <button class="btn btn-minor" onclick="startMinor()">Menor de Edad</button>
-        </div>
+    <!-- 1. PANTALLA INICIAL -->
+    <div id="screen-start" class="screen active">
+        <h1 style="font-weight: 200;">Motor de <br><b>Animación Neuronal</b></h1>
+        <button class="btn btn-primary" onclick="showScreen('screen-upload')">Adulto (Subir Foto)</button>
+        <button class="btn btn-outline" onclick="playMinorVideo()">Menor de Edad</button>
     </div>
 
-    <!-- PANTALLA 2: MENOR (VIDEO) -->
-    <div id="screen-video" class="container">
-        <video id="player" controls>
+    <!-- 2. PANTALLA SUBIR FOTO -->
+    <div id="screen-upload" class="screen">
+        <h2>Paso 1: Captura</h2>
+        <p style="color: #666;">Sube un archivo o hazte un selfie</p>
+        
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <span id="label-upload">📸<br>Tocar para<br>hacer foto</span>
+            <img id="preview-img" src="" alt="Preview">
+        </div>
+        
+        <input type="file" id="fileInput" accept="image/*" capture="user" style="display:none" onchange="handleImage(this)">
+        
+        <div id="ai-status" style="display:none">
+            <p id="status-text">Analizando rasgos faciales...</p>
+            <div class="ai-loader" id="loader"><div id="bar"></div></div>
+        </div>
+
+        <button class="back-btn" onclick="location.reload()">Cancelar</button>
+    </div>
+
+    <!-- 3. PANTALLA RESULTADO (ANIMACIÓN) -->
+    <div id="screen-result" class="screen">
+        <h2 style="color:var(--primary)">Avatar Generado</h2>
+        <!-- Este video simula el avatar animado estilo Grok -->
+        <video id="avatar-video" playsinline>
             <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
         </video>
-        <button class="back-btn" onclick="location.reload()">← VOLVER</button>
+        <p id="phrase-text" style="margin-top: 20px; font-style: italic; color: #888;">"Procesando voz sintética..."</p>
+        <button class="btn btn-outline" onclick="location.reload()" style="margin-top: 20px;">Repetir</button>
     </div>
 
-    <!-- PANTALLA 3: ADULTO (ANIMACIÓN IA) -->
-    <div id="screen-avatar" class="container" style="justify-content: flex-start;">
-        <div id="scanner" class="scanner-line"></div>
-        <iframe id="engine-frame" allow="camera *; microphone *; clipboard-write"></iframe>
-        <button class="back-btn" onclick="location.reload()">TERMINAR SESIÓN</button>
+    <!-- 4. PANTALLA MENOR -->
+    <div id="screen-minor" class="screen">
+        <video id="minor-video" controls>
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        </video>
+        <button class="back-btn" onclick="location.reload()">Volver al inicio</button>
     </div>
 
     <script>
         function showScreen(id) {
-            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
 
-        function startAdult() {
-            showScreen('screen-avatar');
-            document.getElementById('scanner').style.display = 'block';
-            
-            const frame = document.getElementById('engine-frame');
-            /* 
-               AVATURN es el motor que crea el avatar idéntico a la foto y lo anima. 
-               Es lo más parecido a Grok que existe para web.
-            */
-            frame.src = "https://demo.avaturn.me"; 
-
-            frame.onload = () => {
-                // El scanner desaparece cuando carga el motor
-                setTimeout(() => {
-                    document.getElementById('scanner').style.display = 'none';
-                }, 2000);
-            };
+        function playMinorVideo() {
+            showScreen('screen-minor');
+            document.getElementById('minor-video').play();
         }
 
-        function startMinor() {
-            showScreen('screen-video');
-            document.getElementById('player').play();
+        function handleImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Mostrar preview
+                    document.getElementById('label-upload').style.display = 'none';
+                    const img = document.getElementById('preview-img');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    
+                    // Simular Proceso Grok
+                    processAI();
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function processAI() {
+            const statusText = document.getElementById('status-text');
+            const aiStatus = document.getElementById('ai-status');
+            aiStatus.style.display = 'block';
+
+            const steps = [
+                "Mapeando puntos faciales...",
+                "Generando malla 3D...",
+                "Sincronizando redes neuronales...",
+                "Finalizando animación..."
+            ];
+
+            let i = 0;
+            const interval = setInterval(() => {
+                statusText.innerText = steps[i];
+                i++;
+                if (i >= steps.length) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        finishAvatar();
+                    }, 1000);
+                }
+            }, 1000);
+        }
+
+        function finishAvatar() {
+            showScreen('screen-result');
+            const vid = document.getElementById('avatar-video');
+            vid.play();
+            // Aquí es donde pondrás la frase concreta que me digas
+            document.getElementById('phrase-text').innerText = "Cargando frase personalizada de Sicnova...";
         }
     </script>
 </body>
