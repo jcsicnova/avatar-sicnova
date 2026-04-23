@@ -3,143 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sicnova - IES Santo Reino</title>
+    <title>Sicnova AI - Instituto Santo Reino</title>
     <style>
         :root {
             --bg: #000000;
-            --primary: #007bff;
+            --primary: #00f2ff; /* Azul neón tipo IA */
+            --accent: #7000ff;
             --text: #ffffff;
         }
 
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
             background-color: var(--bg); color: var(--text);
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            overflow: hidden; /* Evita scrolls extraños en el móvil */
+            font-family: 'Inter', system-ui, sans-serif;
+            overflow: hidden;
         }
 
-        /* Contenedor para centrar contenido */
-        .full-screen {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
+        /* Fondo con rejilla tecnológica */
+        body {
+            background-image: 
+                linear-gradient(to right, #111 1px, transparent 1px),
+                linear-gradient(to bottom, #111 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        header {
+            position: fixed; top: 0; width: 100%; padding: 20px;
+            text-align: center; background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px); border-bottom: 1px solid #222;
+            z-index: 100; letter-spacing: 2px;
+        }
+
+        .container {
             display: none; flex-direction: column;
+            height: 100vh; width: 100%;
             align-items: center; justify-content: center;
-            background: var(--bg);
         }
 
         .active { display: flex; }
 
-        header {
-            position: fixed; top: 0; width: 100%;
-            padding: 20px; text-align: center;
-            background: rgba(0,0,0,0.9);
-            border-bottom: 1px solid #222; z-index: 100;
+        /* Estilo Grok / AI */
+        .glass-card {
+            background: rgba(15, 15, 15, 0.9);
+            border: 1px solid #333;
+            padding: 40px; border-radius: 24px;
+            width: 85%; max-width: 400px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(0, 242, 255, 0.1);
         }
 
-        /* Botones */
-        .menu-box { width: 90%; max-width: 400px; text-align: center; }
-        
+        h1 { font-weight: 300; font-size: 1.5rem; margin-bottom: 30px; }
+        h1 span { color: var(--primary); font-weight: bold; }
+
         .btn {
-            display: block; width: 100%; padding: 22px; margin: 20px 0;
-            border: none; border-radius: 15px; font-size: 1.2rem;
-            font-weight: bold; cursor: pointer; transition: 0.3s;
+            display: block; width: 100%; padding: 20px; margin: 15px 0;
+            border: none; border-radius: 12px; font-size: 1rem;
+            font-weight: bold; cursor: pointer; transition: 0.4s;
             text-transform: uppercase;
         }
 
-        .btn-adult { background: var(--primary); color: white; box-shadow: 0 5px 15px rgba(0,123,255,0.4); }
-        .btn-minor { background: #222; color: #aaa; border: 1px solid #444; }
+        .btn-adult {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            color: black;
+        }
 
-        /* Estilo Video */
-        video { width: 95%; max-width: 600px; border-radius: 15px; box-shadow: 0 0 30px rgba(255,255,255,0.1); }
+        .btn-minor {
+            background: transparent;
+            color: white;
+            border: 1px solid #444;
+        }
 
-        /* Iframe Avatar */
-        iframe { width: 100%; height: 100%; border: none; padding-top: 60px; }
+        .btn:hover { transform: scale(1.02); opacity: 0.9; }
 
-        .btn-back {
-            position: fixed; bottom: 20px;
+        /* Pantalla de Escaneo (Efecto Grok) */
+        .scanner-line {
+            position: absolute; width: 100%; height: 2px;
+            background: var(--primary);
+            box-shadow: 0 0 15px var(--primary);
+            top: 0; animation: scan 3s infinite linear;
+            display: none; z-index: 10;
+        }
+
+        @keyframes scan {
+            0% { top: 0%; }
+            100% { top: 100%; }
+        }
+
+        /* Iframe & Video */
+        iframe, video {
+            width: 100%; height: 100%; border: none;
+            background: #000; padding-top: 60px;
+        }
+
+        .back-btn {
+            position: fixed; bottom: 30px; left: 50%;
+            transform: translateX(-50%);
             background: rgba(255,255,255,0.1);
-            color: white; padding: 10px 20px; border-radius: 30px;
-            border: 1px solid #444; z-index: 101; cursor: pointer;
+            border: 1px solid #444; color: white;
+            padding: 12px 25px; border-radius: 50px;
+            cursor: pointer; z-index: 101;
+            backdrop-filter: blur(5px);
         }
     </style>
 </head>
 <body>
 
-    <header id="main-header">
-        <span style="color:var(--primary); font-weight: bold;">SICNOVA</span> | IES SANTO REINO
+    <header>
+        <span style="color:var(--primary)">SICNOVA</span> AI | SANTO REINO
     </header>
 
     <!-- PANTALLA 1: SELECTOR -->
-    <div id="screen-selector" class="full-screen active">
-        <div class="menu-box">
-            <h1>Bienvenido</h1>
-            <p style="color:#888; margin-bottom: 40px;">Selecciona tu rango de edad para continuar</p>
-            <button class="btn btn-adult" onclick="goToAdult()">Soy Adulto (+18)</button>
-            <button class="btn btn-minor" onclick="goToMinor()">Soy Menor de Edad</button>
+    <div id="screen-selector" class="container active">
+        <div class="glass-card">
+            <h1>Generador de <span>Avatar Realista</span></h1>
+            <p style="color: #666; margin-bottom: 30px;">Iniciando motor de renderizado neuronal...</p>
+            <button class="btn btn-adult" onclick="startAdult()">Adulto (Escaneo IA)</button>
+            <button class="btn btn-minor" onclick="startMinor()">Menor de Edad</button>
         </div>
     </div>
 
     <!-- PANTALLA 2: MENOR (VIDEO) -->
-    <div id="screen-video" class="full-screen">
-        <video id="main-video" controls>
+    <div id="screen-video" class="container">
+        <video id="player" controls>
             <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-            Tu navegador no soporta video.
         </video>
-        <button class="btn-back" onclick="resetApp()">← VOLVER AL INICIO</button>
+        <button class="back-btn" onclick="location.reload()">← VOLVER</button>
     </div>
 
-    <!-- PANTALLA 3: ADULTO (AVATAR/CÁMARA) -->
-    <div id="screen-avatar" class="full-screen">
-        <!-- El allow="camera" es vital para que Vercel habilite la cámara del móvil -->
-        <iframe 
-            id="avatar-iframe" 
-            allow="camera *; microphone *; clipboard-write"
-            src="">
-        </iframe>
-        <button class="btn-back" onclick="resetApp()">← SALIR DEL ESCÁNER</button>
+    <!-- PANTALLA 3: ADULTO (ANIMACIÓN IA) -->
+    <div id="screen-avatar" class="container" style="justify-content: flex-start;">
+        <div id="scanner" class="scanner-line"></div>
+        <iframe id="engine-frame" allow="camera *; microphone *; clipboard-write"></iframe>
+        <button class="back-btn" onclick="location.reload()">TERMINAR SESIÓN</button>
     </div>
 
     <script>
-        const sSelector = document.getElementById('screen-selector');
-        const sVideo = document.getElementById('screen-video');
-        const sAvatar = document.getElementById('screen-avatar');
-        
-        const videoPlayer = document.getElementById('main-video');
-        const iframe = document.getElementById('avatar-iframe');
-        const header = document.getElementById('main-header');
-
-        // FUNCIÓN PARA ADULTOS
-        function goToAdult() {
-            // 1. Ocultar selector
-            sSelector.classList.remove('active');
-            // 2. Mostrar contenedor de avatar
-            sAvatar.classList.add('active');
-            // 3. Cargar el motor (Ready Player Me con tema oscuro)
-            // Se usa el subdominio 'demo' que es el más estable
-            iframe.src = "https://demo.readyplayer.me/es/avatar?frameApi&theme=dark";
+        function showScreen(id) {
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
         }
 
-        // FUNCIÓN PARA MENORES
-        function goToMinor() {
-            // 1. Ocultar selector
-            sSelector.classList.remove('active');
-            // 2. Mostrar contenedor de video
-            sVideo.classList.add('active');
-            // 3. Reproducir video
-            videoPlayer.play();
-        }
-
-        // FUNCIÓN RESET (VOLVER)
-        function resetApp() {
-            // Pausar video y limpiar iframe
-            videoPlayer.pause();
-            videoPlayer.currentTime = 0;
-            iframe.src = "";
+        function startAdult() {
+            showScreen('screen-avatar');
+            document.getElementById('scanner').style.display = 'block';
             
-            // Alternar pantallas
-            sVideo.classList.remove('active');
-            sAvatar.classList.remove('active');
-            sSelector.classList.add('active');
+            const frame = document.getElementById('engine-frame');
+            /* 
+               AVATURN es el motor que crea el avatar idéntico a la foto y lo anima. 
+               Es lo más parecido a Grok que existe para web.
+            */
+            frame.src = "https://demo.avaturn.me"; 
+
+            frame.onload = () => {
+                // El scanner desaparece cuando carga el motor
+                setTimeout(() => {
+                    document.getElementById('scanner').style.display = 'none';
+                }, 2000);
+            };
+        }
+
+        function startMinor() {
+            showScreen('screen-video');
+            document.getElementById('player').play();
         }
     </script>
 </body>
