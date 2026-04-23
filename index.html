@@ -3,94 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sicnova AI | Neural Avatar</title>
+    <title>Sicnova AI | Neural Generator</title>
     <style>
         :root { --primary: #00f2ff; --bg: #000; --accent: #7000ff; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: #fff; font-family: 'Segoe UI', Roboto, sans-serif; overflow: hidden; }
         
         header { position: fixed; top: 0; width: 100%; padding: 20px; text-align: center; background: rgba(0,0,0,0.9); border-bottom: 1px solid #222; z-index: 1000; backdrop-filter: blur(10px); }
 
         .screen { display: none; width: 100%; height: 100vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box; }
         .active { display: flex; }
 
-        /* Estilo Botones Grok */
-        .btn { display: block; width: 100%; max-width: 300px; padding: 20px; margin: 15px 0; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .btn { display: block; width: 100%; max-width: 300px; padding: 20px; margin: 10px 0; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         .btn-primary { background: var(--primary); color: #000; box-shadow: 0 0 20px rgba(0, 242, 255, 0.4); }
         .btn-outline { background: transparent; color: #fff; border: 1px solid #444; }
 
-        /* Contenedor de Foto Real del Usuario */
-        .user-frame { width: 180px; height: 180px; border-radius: 50%; border: 2px solid var(--primary); overflow: hidden; margin-bottom: 20px; position: relative; }
-        #photo-result { width: 100%; height: 100%; object-fit: cover; }
-        .scan-line { position: absolute; width: 100%; height: 4px; background: var(--primary); top: 0; animation: scan 2s infinite linear; box-shadow: 0 0 15px var(--primary); }
-        @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
+        /* Contenedor de Foto del Usuario */
+        .user-photo-container { width: 150px; height: 150px; border-radius: 50%; border: 2px solid var(--primary); overflow: hidden; margin-bottom: 20px; position: relative; background: #111; }
+        #user-img-capture { width: 100%; height: 100%; object-fit: cover; }
+        .scan-anim { position: absolute; width: 100%; height: 4px; background: var(--primary); top: 0; animation: scanning 2s infinite linear; box-shadow: 0 0 15px var(--primary); }
+        @keyframes scanning { 0% { top: 0%; } 100% { top: 100%; } }
 
-        /* Avatar Humano Animado */
-        .avatar-video-box { width: 100%; max-width: 400px; border-radius: 24px; border: 1px solid #333; overflow: hidden; box-shadow: 0 0 50px rgba(112, 0, 255, 0.2); }
-        video { width: 100%; display: block; background: #000; }
+        /* VIDEO DEL AVATAR (talking head) */
+        .avatar-video-wrapper { 
+            width: 100%; 
+            max-width: 350px; 
+            aspect-ratio: 9/16; 
+            background: #111; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            border: 1px solid var(--primary);
+            display: none; /* Se activa al final */
+        }
+        video { width: 100%; height: 100%; object-fit: cover; }
 
-        .status-text { color: var(--primary); font-family: monospace; font-size: 0.8rem; margin-top: 10px; height: 20px; }
-        .phrase-box { margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; width: 90%; max-width: 400px; font-style: italic; border-left: 3px solid var(--primary); }
+        .loading-bar { width: 80%; max-width: 300px; height: 4px; background: #222; border-radius: 10px; margin-top: 20px; overflow: hidden; }
+        .loading-progress { width: 0%; height: 100%; background: var(--primary); }
+
+        #terminal-log { font-family: monospace; color: var(--primary); font-size: 0.7rem; margin-top: 15px; height: 40px; }
     </style>
 </head>
 <body>
 
     <header><b>SICNOVA AI</b> | IES SANTO REINO</header>
 
-    <!-- 1. INICIO -->
+    <!-- 1. SELECTOR -->
     <div id="screen-home" class="screen active">
-        <h1 style="font-weight: 200;">Generador de <br><b style="color:var(--primary)">Avatar Neural</b></h1>
-        <button class="btn btn-primary" onclick="showScreen('screen-capture')">Adulto (Escaneo)</button>
+        <h1 style="font-weight: 200;">Avatar <b>Neural Engine</b></h1>
+        <button class="btn btn-primary" onclick="showScreen('screen-capture')">Adulto (Selfie)</button>
         <button class="btn btn-outline" onclick="startMinor()">Menor de Edad</button>
     </div>
 
-    <!-- 2. CAPTURA Y ESCANEO -->
+    <!-- 2. CAPTURA -->
     <div id="screen-capture" class="screen">
-        <div class="user-frame" id="frame-capture" style="display:none">
-            <div class="scan-line"></div>
-            <img id="user-preview" src="">
+        <div class="user-photo-container">
+            <div id="scanner-line" class="scan-anim" style="display:none"></div>
+            <img id="user-preview" src="" style="display:none">
         </div>
-        <p id="instruction" style="color: #444;">Hazte un selfie para iniciar la animación</p>
-        <input type="file" id="camera-input" accept="image/*" capture="user" style="display:none" onchange="processIA(this)">
+        <p id="instruction" style="color: #555;">Captura tu rostro para iniciar</p>
+        
+        <input type="file" id="camera-input" accept="image/*" capture="user" style="display:none" onchange="processNeural(this)">
         <button class="btn btn-primary" id="snap-btn" onclick="document.getElementById('camera-input').click()">Hacer Foto</button>
-        <div id="status" class="status-text"></div>
+        
+        <div class="loading-bar" id="l-bar" style="display:none"><div class="loading-progress" id="l-progress"></div></div>
+        <div id="terminal-log"></div>
     </div>
 
-    <!-- 3. RESULTADO: AVATAR HABLANDO -->
+    <!-- 3. RESULTADO -->
     <div id="screen-result" class="screen">
-        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-            <div class="user-frame" style="width: 80px; height: 80px; margin-bottom: 0;">
-                <img id="user-small" src="">
-            </div>
-            <div style="text-align: left;">
-                <h3 style="margin: 0; color: var(--primary);">Gemelo Digital</h3>
-                <small style="color: #666;">Sincronización Labial Activa</small>
-            </div>
-        </div>
-
-        <div class="avatar-video-box">
-            <!-- Vídeo de un humano digital realista hablando -->
-            <video id="avatar-vid" playsinline loop muted>
-                <source src="https://v.ftcdn.net/05/56/63/01/700_F_556630132_K2MDRQ3FasR9fOsh4X6S9E3V9E3pX1G9_ST.mp4" type="video/mp4">
+        <div class="avatar-video-wrapper" id="v-wrapper">
+            <!-- Video de alta compatibilidad (Cloudinary) -->
+            <video id="avatar-vid" playsinline webkit-playsinline loop muted crossorigin="anonymous">
+                <source src="https://res.cloudinary.com/demo/video/upload/c_fill,h_640,w_360/dog.mp4" type="video/mp4">
             </video>
         </div>
-
-        <div class="phrase-box" id="text-display">"Iniciando síntesis de voz..."</div>
-
-        <button class="btn btn-primary" id="play-btn" onclick="startTalking()">ACTIVAR AVATAR Y VOZ</button>
-        <button class="btn btn-outline" style="max-width: 150px; font-size: 0.7rem;" onclick="location.reload()">Nuevo Escaneo</button>
+        
+        <div id="phrase-text" style="margin-top:20px; padding: 0 20px; color: var(--primary); font-style: italic;"></div>
+        
+        <button class="btn btn-primary" id="activate-btn" onclick="startSpeech()">ACTIVAR AVATAR Y VOZ</button>
+        <button class="btn btn-outline" style="max-width: 120px; font-size: 0.7rem;" onclick="location.reload()">Reiniciar</button>
     </div>
 
-    <!-- 4. MENORES -->
+    <!-- 4. MENOR -->
     <div id="screen-minor" class="screen">
-        <video id="minor-vid" controls playsinline style="width:100%; max-width:400px; border-radius:20px;">
+        <video id="minor-vid" controls playsinline style="width:90%; border-radius:15px;">
             <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
         </video>
         <button class="btn btn-outline" onclick="location.reload()">Volver</button>
     </div>
 
     <script>
-        // LA FRASE CONCRETA DE SICNOVA
-        const fraseSicnova = "Hola, soy tu avatar generado por inteligencia artificial para Sicnova y el Instituto Santo Reino. Mi proceso de animación neuronal ha finalizado con éxito.";
+        const frase = "Hola, soy tu avatar generado por inteligencia artificial para Sicnova y el Instituto Santo Reino. Mi proceso de animación neuronal ha finalizado con éxito.";
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -102,43 +104,63 @@
             document.getElementById('minor-vid').play();
         }
 
-        function processIA(input) {
+        function processNeural(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
+                    // Mostrar previa
                     document.getElementById('instruction').style.display = 'none';
-                    document.getElementById('frame-capture').style.display = 'block';
                     document.getElementById('user-preview').src = e.target.result;
-                    document.getElementById('user-small').src = e.target.result;
+                    document.getElementById('user-preview').style.display = 'block';
+                    document.getElementById('scanner-line').style.display = 'block';
                     document.getElementById('snap-btn').style.display = 'none';
-                    
-                    const status = document.getElementById('status');
-                    status.innerText = "EXTRAYENDO RASGOS...";
-                    setTimeout(() => status.innerText = "MAPEO FACIAL COMPLETO...", 1500);
-                    setTimeout(() => status.innerText = "GENERANDO ANIMACIÓN NEURAL...", 3000);
-                    setTimeout(() => showScreen('screen-result'), 4500);
+                    document.getElementById('l-bar').style.display = 'block';
+
+                    // Simulación de carga
+                    let prog = 0;
+                    const log = document.getElementById('terminal-log');
+                    const interval = setInterval(() => {
+                        prog += 5;
+                        document.getElementById('l-progress').style.width = prog + "%";
+                        if(prog == 20) log.innerText = "Extrayendo geometría facial...";
+                        if(prog == 50) log.innerText = "Generando red neuronal...";
+                        if(prog == 80) log.innerText = "Sincronizando labios...";
+                        
+                        if (prog >= 100) {
+                            clearInterval(interval);
+                            showScreen('screen-result');
+                        }
+                    }, 150);
                 }
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        function startTalking() {
+        function startSpeech() {
             const vid = document.getElementById('avatar-vid');
-            const btn = document.getElementById('play-btn');
-            const textDisplay = document.getElementById('text-display');
+            const wrapper = document.getElementById('v-wrapper');
+            const btn = document.getElementById('activate-btn');
+            const phraseBox = document.getElementById('phrase-text');
 
-            vid.muted = false;
-            vid.play();
-            btn.style.display = 'none';
-            textDisplay.innerText = fraseSicnova;
-
-            // LÓGICA DE VOZ (Synthesizer)
-            const utterance = new SpeechSynthesisUtterance(fraseSicnova);
-            utterance.lang = 'es-ES';
-            utterance.rate = 0.9; // Un poco más lento para que sea realista
-            utterance.pitch = 1;
+            wrapper.style.display = 'block';
+            vid.muted = false; // Importante activar sonido
             
-            window.speechSynthesis.speak(utterance);
+            // Intentar reproducir video con gestión de errores
+            const playPromise = vid.play();
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    btn.style.display = 'none';
+                    phraseBox.innerText = frase;
+                    
+                    // Lanzar voz
+                    const msg = new SpeechSynthesisUtterance(frase);
+                    msg.lang = 'es-ES';
+                    window.speechSynthesis.speak(msg);
+                }).catch(error => {
+                    console.log("Error de video:", error);
+                    alert("Por favor, pulsa de nuevo para activar.");
+                });
+            }
         }
     </script>
 </body>
