@@ -3,162 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sicnova AI | Generador de Avatares</title>
+    <title>Sicnova AI | Santo Reino</title>
     <style>
-        :root {
-            --bg: #000000;
-            --primary: #00f2ff;
-            --text: #ffffff;
-            --card: #111111;
-        }
+        :root { --primary: #00f2ff; --bg: #000; --accent: #7000ff; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: #fff; font-family: -apple-system, system-ui, sans-serif; overflow: hidden; }
+        
+        .app-container { display: flex; flex-direction: column; height: 100vh; width: 100%; align-items: center; justify-content: center; }
+        header { position: fixed; top: 0; width: 100%; padding: 25px; text-align: center; background: rgba(0,0,0,0.9); border-bottom: 1px solid #222; z-index: 100; backdrop-filter: blur(10px); }
+        
+        .screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; text-align: center; }
+        .active { display: flex; }
 
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            background-color: var(--bg); color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden;
-        }
+        /* Estilo Grok / Sicnova */
+        h1 { font-weight: 200; font-size: 2.2rem; margin-bottom: 10px; }
+        h1 b { color: var(--primary); text-shadow: 0 0 20px rgba(0, 242, 255, 0.5); }
+        .subtitle { color: #555; margin-bottom: 40px; letter-spacing: 1px; }
 
-        /* Pantalla de Selección */
-        .container {
-            display: flex; flex-direction: column;
-            width: 100%; height: 100%;
-            align-items: center; justify-content: center;
-            position: absolute; top: 0; left: 0;
-            transition: opacity 0.5s;
-            z-index: 10;
-        }
+        .btn { display: block; width: 100%; max-width: 320px; padding: 22px; margin: 12px 0; border: none; border-radius: 16px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.4s; text-transform: uppercase; }
+        .btn-adult { background: linear-gradient(90deg, var(--primary), var(--accent)); color: #000; }
+        .btn-minor { background: #111; color: #fff; border: 1px solid #333; }
+        .btn:active { transform: scale(0.96); }
 
-        header {
-            position: fixed; top: 0; width: 100%; padding: 20px;
-            text-align: center; background: rgba(0,0,0,0.8);
-            border-bottom: 1px solid #222; backdrop-filter: blur(10px);
-            z-index: 100;
-        }
+        /* Visualizador de Foto y Escáner */
+        .preview-circle { width: 280px; height: 280px; border: 2px solid #222; border-radius: 50%; position: relative; overflow: hidden; background: #080808; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; }
+        #photo-result { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .scanner-line { position: absolute; width: 100%; height: 5px; background: var(--primary); top: 0; display: none; animation: scan 2s infinite ease-in-out; box-shadow: 0 0 20px var(--primary); z-index: 10; }
+        @keyframes scan { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
 
-        .btn {
-            width: 85%; max-width: 320px; padding: 20px;
-            margin: 15px 0; border: none; border-radius: 12px;
-            font-size: 1.1rem; font-weight: bold; cursor: pointer;
-            text-transform: uppercase; letter-spacing: 1px;
-            transition: transform 0.2s;
-        }
+        .loading-bar { width: 100%; max-width: 280px; height: 4px; background: #111; border-radius: 10px; margin-top: 20px; display: none; overflow: hidden; }
+        .loading-progress { width: 0%; height: 100%; background: var(--primary); animation: progress 4s forwards; }
+        @keyframes progress { to { width: 100%; } }
 
-        .btn-adult {
-            background: linear-gradient(45deg, var(--primary), #7000ff);
-            color: #000;
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
-        }
-
-        .btn-minor {
-            background: #222; color: #fff; border: 1px solid #333;
-        }
-
-        /* MOTOR DE IA (ADULTO) */
-        #ai-engine-wrapper {
-            display: none; width: 100%; height: 100%;
-            background: #000; position: absolute; top: 0; left: 0;
-            z-index: 50;
-        }
-
-        iframe {
-            width: 100%; height: 100%; border: none;
-            padding-top: 60px; box-sizing: border-box;
-        }
-
-        /* SECCIÓN MENORES (VIDEO) */
-        #minor-section {
-            display: none; width: 100%; height: 100%;
-            background: #000; z-index: 60;
-            flex-direction: column; align-items: center; justify-content: center;
-        }
-
-        video { width: 90%; max-width: 500px; border-radius: 15px; border: 1px solid #333; }
-
-        .back-btn {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: rgba(255,255,255,0.1); color: #fff; border: 1px solid #444;
-            padding: 10px 25px; border-radius: 50px; z-index: 1000; cursor: pointer;
-        }
-
-        h1 { font-weight: 200; font-size: 1.8rem; margin-bottom: 10px; }
-        b { color: var(--primary); }
+        video { width: 100%; max-width: 500px; border-radius: 20px; box-shadow: 0 0 40px rgba(0,0,0,1); }
+        .back-btn { position: fixed; bottom: 30px; color: #444; background: none; border: none; cursor: pointer; font-size: 0.9rem; text-decoration: underline; }
     </style>
 </head>
 <body>
 
-    <header id="app-header">
-        <span style="color:var(--primary)">SICNOVA AI</span> | SANTO REINO
+    <header>
+        <span style="letter-spacing: 3px;"><b>SICNOVA</b> AI</span>
     </header>
 
-    <!-- PANTALLA DE INICIO -->
-    <div id="selector-screen" class="container">
-        <h1>Generador <b>Grok-Style</b></h1>
-        <p style="color: #666; margin-bottom: 40px;">Digitalización facial hiperrealista</p>
-        
-        <button class="btn btn-adult" onclick="loadAIEngine()">Acceso Adulto</button>
-        <button class="btn btn-minor" onclick="loadMinorVideo()">Acceso Menor</button>
-    </div>
+    <div class="app-container">
 
-    <!-- CONTENEDOR DEL MOTOR IA (ADULTO) -->
-    <div id="ai-engine-wrapper">
-        <!-- IMPORTANTE: Atributos de cámara obligatorios para móviles -->
-        <iframe 
-            id="ai-iframe"
-            allow="camera; microphone; autoplay; encrypted-media; fullscreen;"
-            src="">
-        </iframe>
-        <button class="back-btn" onclick="location.reload()">SALIR</button>
-    </div>
+        <!-- PANTALLA 1: SELECTOR -->
+        <div id="screen-selector" class="screen active">
+            <h1>Motor <b>Neuronal</b></h1>
+            <p class="subtitle">IES SANTO REINO</p>
+            <button class="btn btn-adult" onclick="goToUpload()">Acceso Adulto</button>
+            <button class="btn btn-minor" onclick="goToMinor()">Acceso Menor</button>
+        </div>
 
-    <!-- SECCIÓN DE MENORES -->
-    <div id="minor-section" class="container">
-        <video id="minor-video" controls playsinline>
-            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-        </video>
-        <button class="back-btn" onclick="location.reload()">VOLVER</button>
+        <!-- PANTALLA 2: CAPTURA (ADULTO) -->
+        <div id="screen-upload" class="screen">
+            <div class="preview-circle">
+                <div id="scanner" class="scanner-line"></div>
+                <img id="photo-result" src="">
+                <span id="label" style="color:#333">Esperando<br>Captura</span>
+            </div>
+
+            <input type="file" id="input-cam" accept="image/*" capture="user" style="display:none" onchange="handlePhoto(this)">
+            
+            <button id="btn-main" class="btn btn-adult" onclick="document.getElementById('input-cam').click()">Hacer Selfie</button>
+            
+            <div id="status-container" style="display:none">
+                <p id="status-text" style="color:var(--primary); font-family: monospace;">ANALIZANDO ROSTRO...</p>
+                <div class="loading-bar" style="display:block;"><div class="loading-progress"></div></div>
+            </div>
+
+            <button class="back-btn" onclick="location.reload()">CANCELAR</button>
+        </div>
+
+        <!-- PANTALLA 3: MENOR (VIDEO) -->
+        <div id="screen-minor" class="screen">
+            <video id="minor-video" controls playsinline>
+                <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+            </video>
+            <button class="back-btn" onclick="location.reload()">VOLVER</button>
+        </div>
+
     </div>
 
     <script>
-        /**
-         * EXPLICACIÓN TÉCNICA:
-         * Para que el avatar se GENERE a partir de la foto, usamos Avaturn.
-         * Avaturn permite: 1. Hacerse un selfie, 2. La IA lo procesa en segundos,
-         * 3. Crea un modelo 3D realista animado de la persona.
-         */
-
-        function loadAIEngine() {
-            const selector = document.getElementById('selector-screen');
-            const wrapper = document.getElementById('ai-engine-wrapper');
-            const iframe = document.getElementById('ai-iframe');
-            const header = document.getElementById('app-header');
-
-            // 1. Ocultamos la UI inicial
-            selector.style.display = 'none';
-            header.style.display = 'none';
-            
-            // 2. Mostramos el contenedor del motor
-            wrapper.style.display = 'block';
-
-            // 3. Cargamos el motor (Avaturn es mucho más realista que Ready Player Me)
-            // Esta URL lanza el proceso de captura de foto inmediatamente.
-            iframe.src = "https://demo.avaturn.me";
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
         }
 
-        function loadMinorVideo() {
-            const selector = document.getElementById('selector-screen');
-            const minorSec = document.getElementById('minor-section');
-            const video = document.getElementById('minor-video');
+        function goToUpload() { showScreen('screen-upload'); }
 
-            selector.style.display = 'none';
-            minorSec.style.display = 'flex';
-            video.play();
+        function goToMinor() { 
+            showScreen('screen-minor'); 
+            document.getElementById('minor-video').play(); 
         }
 
-        // Bloqueo de errores de carga
-        window.onerror = function() {
-            console.log("Error detectado en el motor de IA. Reintentando...");
-        };
+        function handlePhoto(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Mostrar Foto
+                    document.getElementById('label').style.display = 'none';
+                    const img = document.getElementById('photo-result');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+
+                    // Iniciar Animación IA estilo Grok
+                    document.getElementById('scanner').style.display = 'block';
+                    document.getElementById('btn-main').style.display = 'none';
+                    document.getElementById('status-container').style.display = 'block';
+
+                    const status = document.getElementById('status-text');
+                    setTimeout(() => status.innerText = "GENERANDO MALLA 3D...", 1500);
+                    setTimeout(() => status.innerText = "SINCRO NEURONAL...", 3000);
+                    
+                    // PASO FINAL: Redirección al motor global para evitar bloqueos de IP
+                    setTimeout(() => {
+                        // Usamos la URL raíz que NO depende de subdominios 'demo'
+                        window.location.href = "https://readyplayer.me/es/avatar?theme=dark";
+                    }, 4500);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
     </script>
 </body>
 </html>
