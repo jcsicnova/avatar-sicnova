@@ -5,20 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sicnova AI | Santo Reino</title>
     <style>
-        :root { --primary: #00f2ff; --bg: #000; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        :root { --primary: #00f2ff; --bg: #000; --accent: #7000ff; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: #fff; font-family: -apple-system, system-ui, sans-serif; overflow: hidden; }
         
         header { position: fixed; top: 0; width: 100%; padding: 20px; text-align: center; background: rgba(0,0,0,0.9); border-bottom: 1px solid #222; z-index: 1000; backdrop-filter: blur(10px); }
 
         .screen { display: none; width: 100%; height: 100vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box; }
         .active { display: flex; }
 
-        /* Estilo Botones Grok */
+        /* Estilo Grok / Sicnova */
         .btn { display: block; width: 100%; max-width: 300px; padding: 22px; margin: 15px 0; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-        .btn-adult { background: linear-gradient(90deg, var(--primary), #7000ff); color: #000; box-shadow: 0 0 20px rgba(0, 242, 255, 0.4); }
+        .btn-adult { background: linear-gradient(90deg, var(--primary), var(--accent)); color: #000; box-shadow: 0 0 20px rgba(0, 242, 255, 0.4); }
         .btn-minor { background: #1a1a1a; color: #fff; border: 1px solid #333; }
 
-        /* Contenedor del Motor 3D */
+        /* Animación de Carga IA (Grok Style) */
+        #ai-loading { display: none; text-align: center; }
+        .scanner-line { width: 200px; height: 2px; background: var(--primary); box-shadow: 0 0 15px var(--primary); position: relative; animation: scan 2s infinite; margin: 20px auto; }
+        @keyframes scan { 0% { top: 0; opacity: 0; } 50% { opacity: 1; } 100% { top: 100px; opacity: 0; } }
+
+        /* Contenedor del Motor de Avatar */
         #avatar-engine-container { display: none; width: 100%; height: 100vh; position: absolute; top: 0; left: 0; z-index: 500; background: #000; }
         iframe { width: 100%; height: 100%; border: none; padding-top: 60px; box-sizing: border-box; }
 
@@ -35,14 +40,22 @@
     <!-- 1. SELECTOR INICIAL -->
     <div id="screen-start" class="screen active">
         <h1 style="font-weight: 200; font-size: 2.2rem;">Generador de <br><b style="color:var(--primary)">Avatar 3D</b></h1>
-        <p style="color:#666; margin-bottom: 30px;">Iniciando motor de reconstrucción facial...</p>
-        <button class="btn btn-adult" onclick="startAdultAI()">Soy Adulto (Crear mi Avatar)</button>
+        <p style="color:#666; margin-bottom: 30px;">Digitalización facial por IA</p>
+        
+        <button class="btn btn-adult" onclick="startAdultProcess()">Soy Adulto (Crear mi Avatar)</button>
         <button class="btn btn-minor" onclick="startMinorFlow()">Soy Menor de Edad</button>
     </div>
 
-    <!-- 2. MOTOR DE IA (Donde ocurre la magia del selfie) -->
+    <!-- 2. PANTALLA DE CARGA IA -->
+    <div id="ai-loading" class="screen">
+        <h2 style="color: var(--primary)">Iniciando Escaneo Neuronal...</h2>
+        <div class="scanner-line"></div>
+        <p>Conectando con el motor de renderizado...</p>
+    </div>
+
+    <!-- 3. MOTOR DE IA (IFRAME) -->
     <div id="avatar-engine-container">
-        <!-- Motor oficial de Ready Player Me para Sicnova -->
+        <!-- He cambiado la URL a la GLOBAL ESTABLE que no falla -->
         <iframe 
             id="rpm-iframe" 
             allow="camera *; microphone *; clipboard-write; autoplay" 
@@ -51,7 +64,7 @@
         <button class="back-btn" onclick="location.reload()">← VOLVER AL INICIO</button>
     </div>
 
-    <!-- 3. FLUJO MENORES -->
+    <!-- 4. FLUJO MENORES -->
     <div id="screen-minor" class="screen">
         <video id="minor-video" controls playsinline>
             <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
@@ -60,20 +73,29 @@
     </div>
 
     <script>
-        function startAdultAI() {
-            const startScreen = document.getElementById('screen-start');
-            const engineContainer = document.getElementById('avatar-engine-container');
-            const iframe = document.getElementById('rpm-iframe');
+        function startAdultProcess() {
+            // Mostrar animación de carga estilo Grok
+            document.getElementById('screen-start').style.display = 'none';
+            document.getElementById('ai-loading').style.display = 'flex';
 
-            startScreen.style.display = 'none';
-            engineContainer.style.display = 'block';
+            // Tiempo de "procesamiento" para dar sensación de IA
+            setTimeout(() => {
+                const engineContainer = document.getElementById('avatar-engine-container');
+                const iframe = document.getElementById('rpm-iframe');
+                
+                document.getElementById('ai-loading').style.display = 'none';
+                engineContainer.style.display = 'block';
 
-            /**
-             * EXPLICACIÓN:
-             * Esta URL es el motor de IA. Al cargar, pedirá permiso para usar la cámara.
-             * Una vez te hagas la foto, la IA generará TU cara en un cuerpo 3D animado.
-             */
-            iframe.src = "https://sicnova.readyplayer.me/es/avatar?frameApi&theme=dark";
+                /**
+                 * SOLUCIÓN AL ERROR DE IP: 
+                 * Usamos el dominio raíz oficial 'readyplayer.me'. 
+                 * Esto garantiza que los servidores DNS lo encuentren siempre.
+                 */
+                iframe.src = "https://readyplayer.me/es/avatar?frameApi&theme=dark";
+
+                // Forzar el foco para evitar pantallas negras en móvil
+                iframe.focus();
+            }, 2000);
         }
 
         function startMinorFlow() {
@@ -83,18 +105,10 @@
             document.getElementById('minor-video').play();
         }
 
-        // Listener para detectar cuando el avatar está listo
-        window.addEventListener('message', (event) => {
-            const json = parse(event);
-            if (json?.source === 'readyplayerme' && json?.eventName === 'v1.avatar.exported') {
-                alert("¡Felicidades! Tu avatar 3D ha sido generado con éxito.");
-                console.log("Avatar URL:", json.data.url);
-            }
-        });
-
-        function parse(event) {
-            try { return JSON.parse(event.data); } catch (e) { return null; }
-        }
+        // Listener para errores de carga
+        document.getElementById('rpm-iframe').onerror = function() {
+            alert("Error al conectar con el motor de IA. Comprueba tu conexión a internet.");
+        };
     </script>
 </body>
 </html>
