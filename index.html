@@ -3,129 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sicnova AI | Generador de Avatares</title>
+    <title>Sicnova AI | Santo Reino</title>
     <style>
-        :root {
-            --bg: #000000;
-            --primary: #00f2ff;
-            --accent: #7000ff;
-            --text: #ffffff;
-        }
-
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            background-color: var(--bg); color: var(--text);
-            font-family: 'Inter', -apple-system, sans-serif;
-            overflow: hidden;
-        }
-
-        .screen {
-            display: none; width: 100%; height: 100vh;
-            flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; padding: 20px; box-sizing: border-box;
-            position: absolute; top: 0; left: 0;
-        }
-
+        :root { --bg: #000; --primary: #00f2ff; --text: #fff; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: var(--text); font-family: sans-serif; overflow: hidden; }
+        
+        header { position: fixed; top: 0; width: 100%; padding: 20px; text-align: center; background: rgba(0,0,0,0.9); border-bottom: 1px solid #222; z-index: 100; font-size: 0.9rem; }
+        
+        .screen { display: none; width: 100%; height: 100vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box; }
         .active { display: flex; }
 
-        header {
-            position: fixed; top: 0; width: 100%; padding: 20px;
-            text-align: center; background: rgba(0,0,0,0.9);
-            border-bottom: 1px solid #222; z-index: 100;
-        }
-
-        /* Botones estilo Grok/Sicnova */
-        .btn {
-            display: block; width: 100%; max-width: 300px; padding: 20px;
-            margin: 15px 0; border: none; border-radius: 50px;
-            font-size: 1rem; font-weight: bold; cursor: pointer;
-            transition: 0.3s; text-transform: uppercase;
-        }
-
-        .btn-primary { background: var(--primary); color: #000; box-shadow: 0 0 20px rgba(0, 242, 255, 0.4); }
+        .btn { display: block; width: 100%; max-width: 280px; padding: 18px; margin: 10px 0; border: none; border-radius: 50px; font-size: 1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn-primary { background: var(--primary); color: #000; box-shadow: 0 0 15px rgba(0, 242, 255, 0.4); }
         .btn-outline { background: transparent; color: #fff; border: 1px solid #444; }
 
-        /* Área de carga de foto */
-        .upload-container {
-            width: 280px; height: 350px; border: 2px solid #222;
-            border-radius: 20px; position: relative; overflow: hidden;
-            background: #050505; display: flex; align-items: center; justify-content: center;
-        }
-
+        /* Área de foto */
+        .preview-box { width: 250px; height: 250px; border: 2px solid #222; border-radius: 20px; position: relative; overflow: hidden; background: #050505; margin-bottom: 20px; }
         #preview-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        
+        .scan-line { position: absolute; width: 100%; height: 3px; background: var(--primary); top: 0; display: none; animation: scan 2s infinite linear; box-shadow: 0 0 10px var(--primary); }
+        @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
 
-        /* Escáner de IA */
-        .scanner-bar {
-            position: absolute; width: 100%; height: 4px;
-            background: var(--primary); box-shadow: 0 0 15px var(--primary);
-            top: 0; display: none; z-index: 10; animation: scan 2s infinite ease-in-out;
-        }
+        /* VIDEO FIX */
+        #video-wrapper { width: 100%; max-width: 350px; display: none; margin-bottom: 20px; border-radius: 15px; overflow: hidden; border: 1px solid var(--primary); background: #111; }
+        video { width: 100%; display: block; }
 
-        @keyframes scan { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
-
-        /* Video de Avatar */
-        #avatar-video {
-            width: 100%; max-width: 400px; border-radius: 20px;
-            display: none; border: 1px solid var(--primary);
-        }
-
-        .loader-text { color: var(--primary); font-family: monospace; margin-top: 15px; display: none; }
-
-        .back-btn { position: fixed; bottom: 30px; color: #555; background: none; border: none; cursor: pointer; }
+        .loader-text { color: var(--primary); font-family: monospace; font-size: 0.8rem; margin: 10px 0; display: none; }
+        .back-link { margin-top: 30px; color: #555; cursor: pointer; text-decoration: underline; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-    <header>
-        <b style="color:var(--primary)">SICNOVA</b> AI | SANTO REINO
-    </header>
+    <header><b>SICNOVA AI</b> | IES SANTO REINO</header>
 
     <!-- 1. INICIO -->
     <div id="screen-start" class="screen active">
-        <h1 style="font-size: 2rem; font-weight: 300;">IA <br><b>ANIMATOR</b></h1>
-        <button class="btn btn-primary" onclick="showScreen('screen-upload')">Adulto (Selfie)</button>
-        <button class="btn btn-outline" onclick="startMinorFlow()">Menor de Edad</button>
+        <h1 style="font-weight: 300;">Digitalización <br><b>Neuronal</b></h1>
+        <button class="btn btn-primary" onclick="showScreen('screen-upload')">Adulto (Escaneo)</button>
+        <button class="btn btn-outline" onclick="startMinor()">Menor de Edad</button>
     </div>
 
-    <!-- 2. SUBIR / HACER FOTO -->
+    <!-- 2. SUBIR FOTO -->
     <div id="screen-upload" class="screen">
-        <div class="upload-container" id="drop-area">
-            <div id="scanner" class="scanner-bar"></div>
-            <span id="placeholder-text" style="color:#444">Toca para capturar<br>foto de rostro</span>
+        <div class="preview-box">
+            <div id="scanner" class="scan-line"></div>
             <img id="preview-img" src="">
+            <div id="tap-msg" style="margin-top: 100px; color: #444;">Toca el botón para<br>hacerte un selfie</div>
         </div>
         
         <input type="file" id="fileInput" accept="image/*" capture="user" style="display:none" onchange="processImage(this)">
         
-        <button class="btn btn-primary" id="btn-capture" onclick="document.getElementById('fileInput').click()">Hacer Foto / Subir</button>
-        
-        <div id="status-msg" class="loader-text">GENERANDO RED NEURONAL...</div>
-        <button class="back-btn" onclick="location.reload()">Cancelar</button>
+        <button class="btn btn-primary" id="btn-cap" onclick="document.getElementById('fileInput').click()">Hacer Foto</button>
+        <div id="status-msg" class="loader-text">INICIANDO IA...</div>
+        <button class="back-link" onclick="location.reload()">Cancelar</button>
     </div>
 
-    <!-- 3. RESULTADO ADULTO (AVATAR HABLANDO) -->
+    <!-- 3. RESULTADO (VIDEO) -->
     <div id="screen-result" class="screen">
-        <h2 style="color:var(--primary); margin-bottom: 5px;">Avatar Animado</h2>
-        <p style="color:#666; margin-bottom: 20px;">Sincronización labial completada</p>
-        
-        <!-- Video de un Avatar Humano Real hablando -->
-        <video id="avatar-video" playsinline>
-            <source src="https://v.ftcdn.net/05/56/63/01/700_F_556630132_K2MDRQ3FasR9fOsh4X6S9E3V9E3pX1G9_ST.mp4" type="video/mp4">
-        </video>
+        <h2 style="color:var(--primary); margin: 0;">Avatar Animado</h2>
+        <p style="color:#666; font-size: 0.8rem; margin-bottom: 20px;">Sincronización labial mediante IA</p>
 
-        <button class="btn btn-primary" id="play-btn" onclick="playAvatar()">VER ANIMACIÓN</button>
+        <div id="video-wrapper">
+            <!-- He cambiado el video por uno de Cloudinary (muy compatible con iPhone) -->
+            <video id="avatar-video" playsinline webkit-playsinline>
+                <source src="https://res.cloudinary.com/demo/video/upload/v1617116104/sample_video.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <button class="btn btn-primary" id="play-btn" onclick="playVideo()">VER ANIMACIÓN</button>
         
-        <p id="custom-phrase" style="margin-top:20px; color:var(--primary); font-style: italic;"></p>
-        <button class="back-btn" onclick="location.reload()">Nuevo escaneo</button>
+        <p style="color:var(--primary); font-style: italic; font-size: 0.9rem;">IA de Sicnova: Digitalización completa.</p>
+        <button class="back-link" onclick="location.reload()">Nuevo escaneo</button>
     </div>
 
     <!-- 4. MENORES -->
     <div id="screen-minor" class="screen">
-        <h3>IES SANTO REINO - INFO</h3>
-        <video id="minor-video" controls style="width:100%; max-width:400px; border-radius:15px;">
+        <video id="minor-video" controls playsinline style="width:100%; max-width:350px;">
             <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
         </video>
-        <button class="back-btn" onclick="location.reload()">Volver</button>
+        <button class="back-link" onclick="location.reload()">Volver</button>
     </div>
 
     <script>
@@ -134,7 +90,7 @@
             document.getElementById(id).classList.add('active');
         }
 
-        function startMinorFlow() {
+        function startMinor() {
             showScreen('screen-minor');
             document.getElementById('minor-video').play();
         }
@@ -143,36 +99,39 @@
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    // Mostrar la foto del usuario
-                    document.getElementById('placeholder-text').style.display = 'none';
+                    document.getElementById('tap-msg').style.display = 'none';
                     const img = document.getElementById('preview-img');
                     img.src = e.target.result;
                     img.style.display = 'block';
                     
-                    // Iniciar animación de escaneo estilo Grok
                     document.getElementById('scanner').style.display = 'block';
                     document.getElementById('status-msg').style.display = 'block';
-                    document.getElementById('btn-capture').style.display = 'none';
+                    document.getElementById('btn-cap').style.display = 'none';
 
-                    // Simular tiempos de procesamiento de IA
-                    setTimeout(() => { document.getElementById('status-msg').innerText = "MAPEANDO EXPRESIONES..."; }, 1500);
-                    setTimeout(() => { document.getElementById('status-msg').innerText = "SINTETIZANDO VOZ..."; }, 3000);
-                    setTimeout(() => {
-                        showScreen('screen-result');
-                    }, 4500);
+                    // Simulación de carga
+                    setTimeout(() => { document.getElementById('status-msg').innerText = "GENERANDO AVATAR..."; }, 1500);
+                    setTimeout(() => { showScreen('screen-result'); }, 3500);
                 }
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        function playAvatar() {
+        function playVideo() {
             const vid = document.getElementById('avatar-video');
+            const wrapper = document.getElementById('video-wrapper');
             const btn = document.getElementById('play-btn');
-            vid.style.display = 'block';
-            vid.play();
+            
+            wrapper.style.display = 'block';
             btn.style.display = 'none';
-            // Aquí se activará tu frase en el futuro
-            document.getElementById('custom-phrase').innerText = "IA de Sicnova: Digitalización completa.";
+            
+            // Forzar reproducción
+            const promise = vid.play();
+            if (promise !== undefined) {
+                promise.catch(error => {
+                    console.log("Error al reproducir: ", error);
+                    alert("Toca de nuevo para reproducir");
+                });
+            }
         }
     </script>
 </body>
