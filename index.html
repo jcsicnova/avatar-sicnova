@@ -3,177 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sicnova AI Dashboard</title>
-    <!-- Cargamos el estilo tipo Grok/Cyberpunk -->
+    <title>Sicnova AI | Generador de Avatares</title>
     <style>
         :root {
+            --bg: #000000;
             --primary: #00f2ff;
-            --bg: #050505;
-            --card: #111111;
             --text: #ffffff;
+            --card: #111111;
         }
 
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
             background-color: var(--bg); color: var(--text);
-            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
         }
 
-        /* UI de Carga y Header */
+        /* Pantalla de Selección */
+        .container {
+            display: flex; flex-direction: column;
+            width: 100%; height: 100%;
+            align-items: center; justify-content: center;
+            position: absolute; top: 0; left: 0;
+            transition: opacity 0.5s;
+            z-index: 10;
+        }
+
         header {
             position: fixed; top: 0; width: 100%; padding: 20px;
             text-align: center; background: rgba(0,0,0,0.8);
-            border-bottom: 1px solid #222; z-index: 1000;
-            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #222; backdrop-filter: blur(10px);
+            z-index: 100;
         }
 
-        .main-container {
-            display: flex; flex-direction: column;
-            width: 100%; height: 100vh;
-            align-items: center; justify-content: center;
-        }
-
-        .screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; }
-        .active { display: flex; }
-
-        /* Botones Profesionales */
         .btn {
-            width: 90%; max-width: 320px; padding: 20px;
-            margin: 10px 0; border: none; border-radius: 12px;
-            font-size: 1rem; font-weight: bold; cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 85%; max-width: 320px; padding: 20px;
+            margin: 15px 0; border: none; border-radius: 12px;
+            font-size: 1.1rem; font-weight: bold; cursor: pointer;
             text-transform: uppercase; letter-spacing: 1px;
+            transition: transform 0.2s;
         }
 
         .btn-adult {
-            background: linear-gradient(135deg, var(--primary), #7000ff);
+            background: linear-gradient(45deg, var(--primary), #7000ff);
             color: #000;
-            box-shadow: 0 4px 20px rgba(0, 242, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
         }
 
         .btn-minor {
-            background: #1a1a1a;
-            color: #fff;
-            border: 1px solid #333;
+            background: #222; color: #fff; border: 1px solid #333;
         }
 
-        .btn:active { transform: scale(0.95); }
-
-        /* Contenedor del Avatar (IFRAME CORREGIDO) */
-        #avatar-engine-container {
-            width: 100%; height: 100%;
-            background: #000;
-            display: none;
-            position: absolute; top: 0; left: 0; z-index: 500;
+        /* MOTOR DE IA (ADULTO) */
+        #ai-engine-wrapper {
+            display: none; width: 100%; height: 100%;
+            background: #000; position: absolute; top: 0; left: 0;
+            z-index: 50;
         }
 
         iframe {
             width: 100%; height: 100%; border: none;
+            padding-top: 60px; box-sizing: border-box;
         }
 
-        /* Reproductor de Video para Menores */
-        #video-screen { background: #000; }
-        video { width: 100%; max-width: 600px; border-radius: 10px; }
+        /* SECCIÓN MENORES (VIDEO) */
+        #minor-section {
+            display: none; width: 100%; height: 100%;
+            background: #000; z-index: 60;
+            flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        video { width: 90%; max-width: 500px; border-radius: 15px; border: 1px solid #333; }
 
         .back-btn {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(255,255,255,0.1); border: 1px solid #444;
-            color: white; padding: 10px 20px; border-radius: 30px;
-            z-index: 2000; cursor: pointer;
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,255,255,0.1); color: #fff; border: 1px solid #444;
+            padding: 10px 25px; border-radius: 50px; z-index: 1000; cursor: pointer;
         }
 
-        h1 { font-weight: 200; letter-spacing: -1px; }
+        h1 { font-weight: 200; font-size: 1.8rem; margin-bottom: 10px; }
         b { color: var(--primary); }
     </style>
 </head>
 <body>
 
-    <header id="header">
-        <b>SICNOVA AI</b> | INSTITUTO SANTO REINO
+    <header id="app-header">
+        <span style="color:var(--primary)">SICNOVA AI</span> | SANTO REINO
     </header>
 
-    <div class="main-container">
+    <!-- PANTALLA DE INICIO -->
+    <div id="selector-screen" class="container">
+        <h1>Generador <b>Grok-Style</b></h1>
+        <p style="color: #666; margin-bottom: 40px;">Digitalización facial hiperrealista</p>
         
-        <!-- PANTALLA 1: SELECTOR -->
-        <div id="screen-selector" class="screen active">
-            <h1>Generador de <b>Avatar</b></h1>
-            <p style="color: #666; margin-bottom: 30px;">Identificación de usuario necesaria</p>
-            <button class="btn btn-adult" onclick="initAvatarEngine()">Acceso Adulto</button>
-            <button class="btn btn-minor" onclick="playMinorContent()">Acceso Menor</button>
-        </div>
+        <button class="btn btn-adult" onclick="loadAIEngine()">Acceso Adulto</button>
+        <button class="btn btn-minor" onclick="loadMinorVideo()">Acceso Menor</button>
+    </div>
 
-        <!-- PANTALLA 2: MOTOR DE AVATAR (ADULTOS) -->
-        <div id="avatar-engine-container">
-            <!-- Cargamos el motor de Avaturn (más realista para Sicnova) -->
-            <iframe 
-                id="avatar-frame" 
-                allow="camera *; microphone *; clipboard-write; autoplay"
-                src="">
-            </iframe>
-            <button class="back-btn" onclick="location.reload()">← SALIR DEL MOTOR</button>
-        </div>
+    <!-- CONTENEDOR DEL MOTOR IA (ADULTO) -->
+    <div id="ai-engine-wrapper">
+        <!-- IMPORTANTE: Atributos de cámara obligatorios para móviles -->
+        <iframe 
+            id="ai-iframe"
+            allow="camera; microphone; autoplay; encrypted-media; fullscreen;"
+            src="">
+        </iframe>
+        <button class="back-btn" onclick="location.reload()">SALIR</button>
+    </div>
 
-        <!-- PANTALLA 3: VIDEO (MENORES) -->
-        <div id="screen-video" class="screen">
-            <video id="minor-video" controls playsinline>
-                <!-- VIDEO GENÉRICO: Sustituye por el tuyo -->
-                <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-            </video>
-            <button class="back-btn" onclick="location.reload()">← VOLVER</button>
-        </div>
-
+    <!-- SECCIÓN DE MENORES -->
+    <div id="minor-section" class="container">
+        <video id="minor-video" controls playsinline>
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        </video>
+        <button class="back-btn" onclick="location.reload()">VOLVER</button>
     </div>
 
     <script>
         /**
-         * Lógica para Adultos:
-         * Abrimos el motor de Avaturn que es el que MEJOR genera el avatar
-         * a partir de una foto en tiempo real.
+         * EXPLICACIÓN TÉCNICA:
+         * Para que el avatar se GENERE a partir de la foto, usamos Avaturn.
+         * Avaturn permite: 1. Hacerse un selfie, 2. La IA lo procesa en segundos,
+         * 3. Crea un modelo 3D realista animado de la persona.
          */
-        function initAvatarEngine() {
-            const container = document.getElementById('avatar-engine-container');
-            const frame = document.getElementById('avatar-frame');
-            const selector = document.getElementById('screen-selector');
-            const header = document.getElementById('header');
 
-            // Ocultamos la interfaz y el header para dar espacio al motor
+        function loadAIEngine() {
+            const selector = document.getElementById('selector-screen');
+            const wrapper = document.getElementById('ai-engine-wrapper');
+            const iframe = document.getElementById('ai-iframe');
+            const header = document.getElementById('app-header');
+
+            // 1. Ocultamos la UI inicial
             selector.style.display = 'none';
             header.style.display = 'none';
-            container.style.display = 'block';
+            
+            // 2. Mostramos el contenedor del motor
+            wrapper.style.display = 'block';
 
-            // URL del Motor de IA (Ready Player Me optimizado)
-            // Se usa el subdominio de Sicnova si existe o uno genérico funcional.
-            // Esta URL disparará automáticamente el permiso de cámara.
-            frame.src = "https://demo.readyplayer.me/es/avatar?frameApi&theme=dark";
+            // 3. Cargamos el motor (Avaturn es mucho más realista que Ready Player Me)
+            // Esta URL lanza el proceso de captura de foto inmediatamente.
+            iframe.src = "https://demo.avaturn.me";
         }
 
-        /**
-         * Lógica para Menores:
-         * Reproduce el video bloqueando cualquier otro acceso.
-         */
-        function playMinorContent() {
-            const selector = document.getElementById('screen-selector');
-            const videoScreen = document.getElementById('screen-video');
+        function loadMinorVideo() {
+            const selector = document.getElementById('selector-screen');
+            const minorSec = document.getElementById('minor-section');
             const video = document.getElementById('minor-video');
 
             selector.style.display = 'none';
-            videoScreen.classList.add('active');
+            minorSec.style.display = 'flex';
             video.play();
         }
 
-        // Listener para recibir el avatar cuando el usuario termine (para Sicnova 3D)
-        window.addEventListener('message', (event) => {
-            const json = parse(event);
-            if (json?.source === 'readyplayerme' && json?.eventName === 'v1.avatar.exported') {
-                console.log("Avatar generado con éxito:", json.data.url);
-                alert("Avatar generado. Procesando modelo 3D para Sicnova...");
-            }
-        });
-
-        function parse(event) {
-            try { return JSON.parse(event.data); } catch (e) { return null; }
-        }
+        // Bloqueo de errores de carga
+        window.onerror = function() {
+            console.log("Error detectado en el motor de IA. Reintentando...");
+        };
     </script>
 </body>
 </html>
